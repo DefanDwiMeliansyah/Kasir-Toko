@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\PelangganController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -26,4 +27,5 @@ Route::post('logout',[AuthController::class,'logout'])->name('logout')->middlewa
 Route::middleware('auth')->group(function(){
     Route::singleton('profile', ProfileController::class);
     Route::resource('user', UserController::class)->middleware('can:admin');
+    Route::resource('pelanggan', PelangganController::class);
 });

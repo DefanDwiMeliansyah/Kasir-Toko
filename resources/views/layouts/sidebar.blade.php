@@ -14,6 +14,9 @@
                 @can('admin')
                 <x-nav-item title="User" icon="fas fa-user-tie" :routes="['user.index', 'user.create', 'user.edit']" />
                 @endcan
+
+                <x-nav-item title="Pelanggan" icon="fas fa-users"
+                    :routes="['pelanggan.index', 'pelanggan.create', 'pelanggan.edit']" />
             </ul>
 
         </nav>
