@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PelangganController;
+use App\Http\Controllers\KategoriController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -28,4 +29,5 @@ Route::middleware('auth')->group(function(){
     Route::singleton('profile', ProfileController::class);
     Route::resource('user', UserController::class)->middleware('can:admin');
     Route::resource('pelanggan', PelangganController::class);
+    Route::resource('kategori', KategoriController::class)->middleware('can:admin');
 });
