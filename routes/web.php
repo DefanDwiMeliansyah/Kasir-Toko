@@ -6,6 +6,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PelangganController;
 use App\Http\Controllers\KategoriController;
+use App\Http\Controllers\ProdukController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -30,4 +32,5 @@ Route::middleware('auth')->group(function(){
     Route::resource('user', UserController::class)->middleware('can:admin');
     Route::resource('pelanggan', PelangganController::class);
     Route::resource('kategori', KategoriController::class)->middleware('can:admin');
+    Route::resource('produk', ProdukController::class);
 });

@@ -11,6 +11,9 @@
             <ul class="nav nav-pills nav-sidebar flex-column" ...>
                 <x-nav-item title="Home" icon="fas fa-home" :routes="['home']" />
 
+                <x-nav-item title="Produk" icon="fas fa-box-open"
+                :routes="['produk.index', 'produk.create', 'produk.edit']" />
+
                 @can('admin')
                 <x-nav-item title="User" icon="fas fa-user-tie" :routes="['user.index', 'user.create', 'user.edit']" />
                 <x-nav-item title="Kategori" icon="fas fa-list"

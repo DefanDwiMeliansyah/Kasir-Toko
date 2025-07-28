@@ -45,5 +45,19 @@ class DatabaseSeeder extends Seeder
         \App\Models\Kategori::create([
             'nama_kategori' => 'Minuman',
         ]);
+
+        \App\Models\Produk::create([
+            'kategori_id' => 1,
+            'kode_produk' => '1001',
+            'nama_produk' => 'Chiki Taro',
+            'harga' => 5000
+        ]);
+
+        \App\Models\Produk::create([
+            'kategori_id' => 2,
+            'kode_produk' => '1002',
+            'nama_produk' => 'Le Mineral',
+            'harga' => 3500
+        ]);
     }
 }

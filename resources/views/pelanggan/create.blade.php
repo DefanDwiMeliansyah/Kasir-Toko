@@ -11,7 +11,7 @@
             @csrf
             <div class="card-header">
                 <h3 class="card-title">Buat Pelanggan Baru</h3>
-            </div>
+            </div>  
             <div class="card-body">
                 <div class="form-group">
                     <label>Nama Lengkap</label>
