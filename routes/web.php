@@ -7,6 +7,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\PelangganController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\ProdukController;
+use App\Http\Controllers\StokController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,4 +34,7 @@ Route::middleware('auth')->group(function(){
     Route::resource('pelanggan', PelangganController::class);
     Route::resource('kategori', KategoriController::class)->middleware('can:admin');
     Route::resource('produk', ProdukController::class);
+    Route::get('stok/produk', [StokController::class, 'produk'])->name('stok.produk');
+    Route::resource('stok', StokController::class)->only(['index', 'create', 'store', 'destroy']);
+
 });

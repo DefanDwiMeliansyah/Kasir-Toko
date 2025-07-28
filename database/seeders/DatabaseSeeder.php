@@ -59,5 +59,27 @@ class DatabaseSeeder extends Seeder
             'nama_produk' => 'Le Mineral',
             'harga' => 3500
         ]);
+
+        \App\Models\Stok::create([
+            'produk_id' => 1,
+            'nama_suplier' => 'Toko Haji Usman',
+            'jumlah' => 250,
+            'tanggal' => date('Y-m-d', strtotime('-1 week'))
+        ]);
+
+        \App\Models\Stok::create([
+            'produk_id' => 2,
+            'nama_suplier' => 'Agen Le Mineral',
+            'jumlah' => 100,
+            'tanggal' => date('Y-m-d', strtotime('-1 week'))
+        ]);
+
+        \App\Models\Produk::where('id', 1)->update([
+            'stok' => 250,
+        ]);
+
+        \App\Models\Produk::where('id', 2)->update([
+            'stok' => 100,
+        ]);
     }
 }
