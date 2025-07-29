@@ -14,6 +14,8 @@
                 <x-nav-item title="Transaksi" icon="fas fa-cash-register"
                     :routes="['transaksi.index', 'transaksi.create', 'transaksi.edit']" />
 
+                <x-nav-item title="Laporan" icon="fas fa-print" :routes="['laporan.index']" />
+
                 @can('admin')
                 <x-nav-item title="User" icon="fas fa-user-tie" :routes="['user.index', 'user.create', 'user.edit']" />
                 <x-nav-item title="Kategori" icon="fas fa-list"
