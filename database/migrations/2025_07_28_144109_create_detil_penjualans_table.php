@@ -9,26 +9,27 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('stoks', function (Blueprint $table) {
+        Schema::create('detil_penjualans', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('penjualan_id')->constrained()
+                ->cascadeOnDelete()
+                ->noActionOnUpdate();
             $table->foreignId('produk_id')->constrained()
                 ->cascadeOnDelete()
-                ->cascadeOnUpdate();
-            $table->string('nama_suplier');
+                ->noActionOnUpdate();
             $table->unsignedInteger('jumlah');
-            $table->integer('stok')->default(0);
-            $table->date('tanggal');
+            $table->unsignedInteger('harga_produk');
+            $table->unsignedInteger('subtotal');
         });
     }
-
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('stoks');
+        Schema::dropIfExists('detil_penjualans');
     }
 };
