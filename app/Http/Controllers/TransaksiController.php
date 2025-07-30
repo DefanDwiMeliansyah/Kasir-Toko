@@ -88,13 +88,13 @@ class TransaksiController extends Controller
 
             $produk = Produk::find($item->id);
             if ($produk) {
-            if ($produk->stok < $item-> quantity) {
-                return redirect() -> route('transaksi.create')->with('store', 'gagal');
-            }
+                if ($produk->stok < $item->quantity) {
+                    return redirect()->route('transaksi.create')->with('store', 'gagal');
+                }
 
-            $produk->stok -= $item->quantity;
-            $produk->save();
-          }
+                $produk->stok -= $item->quantity;
+                $produk->save();
+            }
         }
 
         $cart->destroy();
@@ -120,6 +120,24 @@ class TransaksiController extends Controller
 
     public function destroy(Request $request, Penjualan $transaksi)
     {
+        // Cek jika sudah dibatalkan sebelumnya
+        if ($transaksi->status == 'batal') {
+            return back()->with('destroy', 'success');
+        }
+
+        // Ambil semua detil penjualan
+        $detil = DetilPenjualan::where('penjualan_id', $transaksi->id)->get();
+
+        foreach ($detil as $item) {
+            // Kembalikan stok
+            $produk = Produk::find($item->produk_id);
+            if ($produk) {
+                $produk->stok += $item->jumlah;
+                $produk->save();
+            }
+        }
+
+        // Ubah status menjadi batal
         $transaksi->update([
             'status' => 'batal'
         ]);
