@@ -1,135 +1,147 @@
 @extends('layouts.main', ['title' => 'Invoice'])
 @section('title-content')
-<i class="fas fa-file-invoice mr-2"></i> Invoice
+<i class="fas fa-file-invoice mr-2"></i>
+Invoice #{{ $penjualan->nomor_transaksi }}
 @endsection
 
 @section('content')
-@if (session('destroy') == 'success')
-    <x-alert type="success">
-        <strong>Berhasil dibatalkan!</strong> Transaksi berhasil dibatalkan.
-    </x-alert>
-@endif
-
 <div class="card card-orange card-outline">
     <div class="card-header">
-        <div class="row">
-            <div class="col">
-                <p>No. Transaksi : {{ $penjualan->nomor_transaksi }}</p>
-                <p>Nama Pelanggan : {{ $pelanggan->nama }}</p>
-                <p>No. Telepon : {{ $pelanggan->nomor_tlp }}</p>
-                <p>Alamat : {{ $pelanggan->alamat }}</p>
+        <h3 class="card-title">
+            <i class="fas fa-file-invoice mr-2"></i> 
+            Invoice Transaksi
+        </h3>
+        <div class="card-tools">
+            <a href="{{ route('transaksi.cetak') }}?transaksi={{ $penjualan->id }}" 
+               class="btn btn-sm btn-primary" target="_blank">
+                <i class="fas fa-print mr-1"></i> Cetak
+            </a>
+            @if($penjualan->status !== 'batal')
+            <form action="{{ route('transaksi.destroy', $penjualan) }}" method="POST" class="d-inline ml-2"
+                  onsubmit="return confirm('Yakin ingin membatalkan transaksi ini?')">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-sm btn-danger">
+                    <i class="fas fa-times mr-1"></i> Batalkan
+                </button>
+            </form>
+            @endif
+        </div>
+    </div>
+
+    <div class="card-body">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h5>Informasi Transaksi</h5>
+                <table class="table table-borderless">
+                    <tr>
+                        <td width="150">Nomor Transaksi</td>
+                        <td>: {{ $penjualan->nomor_transaksi }}</td>
+                    </tr>
+                    <tr>
+                        <td>Tanggal</td>
+                        <td>: {{ date('d/m/Y H:i:s', strtotime($penjualan->tanggal)) }}</td>
+                    </tr>
+                    <tr>
+                        <td>Status</td>
+                        <td>: 
+                            @if($penjualan->status == 'selesai')
+                                <span class="badge badge-success">Selesai</span>
+                            @else
+                                <span class="badge badge-danger">Batal</span>
+                            @endif
+                        </td>
+                    </tr>
+                </table>
             </div>
-            <div class="col">
-                <p>Tgl. Transaksi : {{ date('d/m/Y H:i:s', strtotime($penjualan->tanggal)) }}</p>
-                <p>Kasir : {{ $user->nama }}</p>
-                <p>
-                    Status :
-                    @if ($penjualan->status == 'selesai')
-                        <span class="badge badge-success">Selesai</span>
+            <div class="col-md-6">
+                <h5>Informasi Pelanggan & Kasir</h5>
+                <table class="table table-borderless">
+                    <tr>
+                        <td width="100">Pelanggan</td>
+                        <td>: {{ $pelanggan->nama }}</td>
+                    </tr>
+                    <tr>
+                        <td>Alamat</td>
+                        <td>: {{ $pelanggan->alamat }}</td>
+                    </tr>
+                    <tr>
+                        <td>Kasir</td>
+                        <td>: {{ $user->nama }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <h5>Detail Produk</h5>
+        <table class="table table-striped table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Nama Produk</th>
+                    <th>Qty</th>
+                    <th>Harga</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($detilPenjualan as $key => $detail)
+                <tr>
+                    <td>{{ $key + 1 }}</td>
+                    <td>{{ $detail->nama_produk }}</td>
+                    <td>{{ $detail->jumlah }}</td>
+                    <td>Rp {{ number_format($detail->harga_produk, 0, ',', '.') }}</td>
+                    <td>Rp {{ number_format($detail->subtotal, 0, ',', '.') }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+
+        <div class="row mt-4">
+            <div class="col-md-6 offset-md-6">
+                <table class="table table-borderless">
+                    <tr>
+                        <td><strong>Subtotal</strong></td>
+                        <td class="text-right"><strong>Rp {{ number_format($penjualan->subtotal, 0, ',', '.') }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Pajak (10%)</td>
+                        <td class="text-right">Rp {{ number_format($penjualan->pajak, 0, ',', '.') }}</td>
+                    </tr>
+                    @if($penjualan->diskon_nominal > 0)
+                    <tr>
+                        <td>
+                            Diskon
+                            @if($diskon)
+                                <br><small class="text-muted">({{ $diskon->kode_diskon }} - {{ $diskon->nama_diskon }})</small>
+                            @endif
+                        </td>
+                        <td class="text-right text-success">
+                            <strong>-Rp {{ number_format($penjualan->diskon_nominal, 0, ',', '.') }}</strong>
+                        </td>
+                    </tr>
                     @endif
-                    @if ($penjualan->status == 'batal')
-                        <span class="badge badge-danger">Dibatalkan</span>
-                    @endif
-                </p>
+                    <tr class="border-top">
+                        <td><strong>Total Bayar</strong></td>
+                        <td class="text-right"><strong>Rp {{ number_format($penjualan->total, 0, ',', '.') }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Tunai</td>
+                        <td class="text-right">Rp {{ number_format($penjualan->tunai, 0, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Kembalian</strong></td>
+                        <td class="text-right"><strong>Rp {{ number_format($penjualan->kembalian, 0, ',', '.') }}</strong></td>
+                    </tr>
+                </table>
             </div>
         </div>
     </div>
-</div>
 
-<div class="card-body p-0">
-    <table class="table table-striped table-bordered">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Nama Produk</th>
-                <th>Qty</th>
-                <th>Harga</th>
-                <th>Sub Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($detilPenjualan as $key => $item)
-            <tr>
-                <td>{{ $key + 1 }}</td>
-                <td>{{ $item->nama_produk }}</td>
-                <td>{{ $item->jumlah }}</td>
-                <td>{{ number_format($item->harga_produk, 0, ',', '.') }}</td>
-                <td>{{ number_format($item->subtotal, 0, ',', '.') }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-</div>
-
-<div class="card-body">
-    <div class="row">
-        <div class="col-6 offset-6 text-right">
-            <p>Sub Total : {{ number_format($penjualan->subtotal, 0, ',', '.') }}</p>
-            <p>Pajak 10% : {{ number_format($penjualan->pajak, 0, ',', '.') }}</p>
-            <p>Total : {{ number_format($penjualan->total, 0, ',', '.') }}</p>
-            <p>Cash : {{ number_format($penjualan->tunai, 0, ',', '.') }}</p>
-            <p>Kembalian : {{ number_format($penjualan->kembalian, 0, ',', '.') }}</p>
-        </div>
+    <div class="card-footer">
+        <a href="{{ route('transaksi.index') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left mr-2"></i> Kembali ke Transaksi
+        </a>
     </div>
-</div>
-
-<div class="card-footer form-inline">
-    <a href="{{ route('transaksi.index') }}" class="btn btn-secondary mr-2">Ke Transaksi</a>
-    @if ($penjualan->status == 'selesai')
-        <button type="button" class="btn btn-danger ml-auto mr-2" data-toggle="modal" data-target="#modalBatal">Dibatalkan</button>
-    @endif
-    <a target="_blank" href="{{ route('transaksi.cetak', ['transaksi' => $penjualan->id]) }}" class="btn btn-primary @if ($penjualan->status == 'batal') ml-auto @endif">
-        <i class="fas fa-print mr-2"></i> Cetak
-    </a>
 </div>
 @endsection
-
-@push('modals')
-<div class="modal fade" id="modalBatal" tabindex="-1">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Dibatalkan</h5>
-                <button type="button" class="close" data-dismiss="modal">
-                    <span>&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>Apakah yakin akan dibatalkan?</p>
-                <form action="{{ route('transaksi.destroy', ['transaksi' => $penjualan->id]) }}" method="post" style="display: none;" id="formBatal">
-                    @csrf
-                    @method('DELETE')
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-danger" id="yesBatal">Ya, Batalkan!</button>
-            </div>
-        </div>
-    </div>
-</div>
-@endpush
-@push('scripts')
-<script>
-    $(function() {
-        // Event untuk submit form saat konfirmasi
-        $('#yesBatal').click(function() {
-            $('#formBatal').submit();
-        });
-
-        // Ambil waktu transaksi dari PHP ke JavaScript
-        const waktuTransaksi = new Date("{{ $penjualan->tanggal }}");
-        const waktuSekarang = new Date();
-
-        // Hitung waktu 3 jam setelah transaksi
-const batasPembatalan = new Date(waktuTransaksi.getTime() + 3 * 60 * 1000);
- // 10 detik
-
-        // Jika waktu sekarang sudah lebih dari 3 jam dari waktu transaksi
-        if (waktuSekarang > batasPembatalan) {
-            // Disable tombol batal
-            $('[data-target="#modalBatal"]').prop('disabled', true).text('Batal (Expired)').addClass('disabled');
-        }
-    });
-</script>
-@endpush

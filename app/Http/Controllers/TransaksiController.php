@@ -8,6 +8,7 @@ use App\Models\pelanggan;
 use App\Models\Penjualan;
 use App\Models\Produk;
 use App\Models\User;
+use App\Models\Diskon;
 use Jackiedo\Cart\Cart;
 
 class TransaksiController extends Controller
@@ -44,7 +45,8 @@ class TransaksiController extends Controller
     {
         $request->validate([
             'pelanggan_id' => ['required', 'exists:pelanggans,id'],
-            'cash' => ['required', 'numeric', 'gte:total_bayar']
+            'cash' => ['required', 'numeric', 'gte:total_bayar'],
+            'diskon_id' => ['nullable', 'exists:diskons,id']
         ], [], [
             'pelanggan_id' => 'pelanggan'
         ]);
@@ -55,25 +57,70 @@ class TransaksiController extends Controller
         $cart = $cart->name($user->id);
         $cartDetails = $cart->getDetails();
 
+        $subtotal = $cartDetails->get('subtotal');
+        $taxAmount = $cartDetails->get('tax_amount');
         $total = $cartDetails->get('total');
-        $kembalian = $request->cash - $total;
+
+        // Handle diskon
+        $diskonNominal = 0;
+        $diskonId = null;
+        
+        if ($request->diskon_id) {
+            $diskon = Diskon::find($request->diskon_id);
+            if ($diskon && $diskon->isValid()) {
+                // Siapkan data items untuk validasi kondisi
+                $items = [];
+                $allItems = $cartDetails->get('items');
+                foreach ($allItems as $key => $value) {
+                    $item = $allItems->get($key);
+                    $items[] = [
+                        'id' => $item->id,
+                        'quantity' => $item->quantity,
+                        'price' => $item->price
+                    ];
+                }
+                
+                $diskonNominal = $diskon->hitungDiskon($subtotal, $items);
+                if ($diskonNominal > 0) {
+                    $diskonId = $diskon->id;
+                }
+            }
+        }
+
+        // Hitung ulang total setelah diskon
+        $finalTotal = $total - $diskonNominal;
+        $kembalian = $request->cash - $finalTotal;
 
         $no = $lastPenjualan ? $lastPenjualan->id + 1 : 1;
         $no = sprintf("%04d", $no);
+
+        // Cek stok terlebih dahulu
+        $allItems = $cartDetails->get('items');
+        foreach ($allItems as $key => $value) {
+            $item = $allItems->get($key);
+            $produk = Produk::find($item->id);
+            
+            if ($produk && $produk->stok < $item->quantity) {
+                return redirect()
+                    ->route('transaksi.create')
+                    ->with('store', 'gagal')
+                    ->with('produk_kurang', [$produk->nama_produk]);
+            }
+        }
 
         $penjualan = Penjualan::create([
             'user_id' => $user->id,
             'pelanggan_id' => $cart->getExtraInfo('pelanggan.id'),
             'nomor_transaksi' => date('Ymd') . $no,
             'tanggal' => date('Y-m-d H:i:s'),
-            'total' => $total,
+            'total' => $finalTotal,
             'tunai' => $request->cash,
             'kembalian' => $kembalian,
-            'pajak' => $cartDetails->get('tax_amount'),
-            'subtotal' => $cartDetails->get('subtotal')
+            'pajak' => $taxAmount,
+            'subtotal' => $subtotal,
+            'diskon_id' => $diskonId,
+            'diskon_nominal' => $diskonNominal
         ]);
-
-        $allItems = $cartDetails->get('items');
 
         foreach ($allItems as $key => $value) {
             $item = $allItems->get($key);
@@ -86,20 +133,20 @@ class TransaksiController extends Controller
                 'subtotal' => $item->subtotal,
             ]);
 
+            // Update stok
             $produk = Produk::find($item->id);
-if ($produk) {
-    if ($produk->stok < $item->quantity) {
-        // Kirim nama produk ke session
-        return redirect()
-            ->route('transaksi.create')
-            ->with('store', 'gagal')
-            ->with('produk_kurang', [$produk->nama]);
-    }
+            if ($produk) {
+                $produk->stok -= $item->quantity;
+                $produk->save();
+            }
+        }
 
-    $produk->stok -= $item->quantity;
-    $produk->save();
-}
-
+        // Increment penggunaan diskon jika ada
+        if ($diskonId && $diskonNominal > 0) {
+            $diskon = Diskon::find($diskonId);
+            if ($diskon) {
+                $diskon->incrementTerpakai();
+            }
         }
 
         $cart->destroy();
@@ -115,11 +162,17 @@ if ($produk) {
             ->select('detil_penjualans.*', 'nama_produk')
             ->where('penjualan_id', $transaksi->id)->get();
 
+        $diskon = null;
+        if ($transaksi->diskon_id) {
+            $diskon = Diskon::find($transaksi->diskon_id);
+        }
+
         return view('transaksi.invoice', [
             'penjualan' => $transaksi,
             'pelanggan' => $pelanggan,
             'user' => $user,
-            'detilPenjualan' => $detilPenjualan
+            'detilPenjualan' => $detilPenjualan,
+            'diskon' => $diskon
         ]);
     }
 
@@ -139,6 +192,14 @@ if ($produk) {
             if ($produk) {
                 $produk->stok += $item->jumlah;
                 $produk->save();
+            }
+        }
+
+        // Kembalikan kuota diskon jika ada
+        if ($transaksi->diskon_id) {
+            $diskon = Diskon::find($transaksi->diskon_id);
+            if ($diskon) {
+                $diskon->decrementTerpakai();
             }
         }
 
@@ -214,6 +275,11 @@ if ($produk) {
             ->select('detil_penjualans.*', 'nama_produk')
             ->get();
 
-        return view('transaksi.cetak', compact('penjualan', 'pelanggan', 'user', 'detilPenjualan'));
+        $diskon = null;
+        if ($penjualan->diskon_id) {
+            $diskon = Diskon::find($penjualan->diskon_id);
+        }
+
+        return view('transaksi.cetak', compact('penjualan', 'pelanggan', 'user', 'detilPenjualan', 'diskon'));
     }
 }

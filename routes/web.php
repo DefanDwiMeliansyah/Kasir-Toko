@@ -12,6 +12,7 @@ use App\Http\Controllers\TransaksiController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DiskonController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,7 +48,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('transaksi/pelanggan', [TransaksiController::class, 'pelanggan'])
         ->name('transaksi.pelanggan');
-    Route::get('transaksi/{transaksi}/cetak', [TransaksiController::class, 'cetak'])
+    Route::get('transaksi/cetak', [TransaksiController::class, 'cetak'])
         ->name('transaksi.cetak');
     Route::post('transaksi/pelanggan', [TransaksiController::class, 'addPelanggan'])
         ->name('transaksi.pelanggan.add');
@@ -55,9 +56,12 @@ Route::middleware('auth')->group(function () {
     Route::get('cart/clear', [CartController::class, 'clear'])->name('cart.clear');
     Route::resource('cart', CartController::class)->except('create', 'show', 'edit')
         ->parameters(['cart' => 'hash']);
-        Route::get('laporan', [LaporanController::class, 'index'])->name('laporan.index');
+    Route::get('laporan', [LaporanController::class, 'index'])->name('laporan.index');
     Route::get('laporan/harian', [LaporanController::class, 'harian'])->name('laporan.harian');
     Route::get('laporan/bulanan', [LaporanController::class, 'bulanan'])->name('laporan.bulanan');
     Route::get('/', [DashboardController::class, 'index'])->name('home')->middleware('auth');
-    Route::resource('diskon', \App\Http\Controllers\DiskonController::class);
+    Route::resource('diskon', DiskonController::class);
+    Route::patch('diskon/{diskon}/toggle', [DiskonController::class, 'toggle'])->name('diskon.toggle');
+    Route::post('/cart/apply-discount', [CartController::class, 'applyDiscount']);
+    Route::post('/cart/remove-discount', [CartController::class, 'removeDiscount']);
 });

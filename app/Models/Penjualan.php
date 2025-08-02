@@ -21,6 +21,28 @@ class Penjualan extends Model
         'kembalian',
         'status',
         'subtotal',
-        'pajak'
+        'pajak',
+        'diskon_id',
+        'diskon_nominal'
     ];
+
+    public function diskon()
+    {
+        return $this->belongsTo(Diskon::class, 'diskon_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function pelanggan()
+    {
+        return $this->belongsTo(Pelanggan::class);
+    }
+
+    public function detilPenjualan()
+    {
+        return $this->hasMany(DetilPenjualan::class);
+    }
 }
