@@ -67,14 +67,17 @@ class ProdukController extends Controller
     {
         $dataKategori = Kategori::orderBy('nama_kategori')->get();
 
-        $kategoris = ['' => 'Pilih Kategori:'];
+        $kategoris = [ 
+            ['', 'Pilih Kategori'] 
+        ];
+        
         foreach ($dataKategori as $kategori) {
             $kategoris[] = [$kategori->id, $kategori->nama_kategori];
         }
 
         return view('produk.edit', [
             'produk' => $produk,
-            'kategoris' => $kategoris
+            'kategoris' => $kategoris,
         ]);
     }
 

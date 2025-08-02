@@ -24,6 +24,7 @@ class DashboardController extends Controller
             DB::raw('DATE_FORMAT(tanggal, "%d/%m/%Y") tgl')
         )
             ->whereYear('tanggal', date('Y'))
+            ->where('status', '!=', 'batal') // filter transaksi batal
             ->groupBy('tgl')
             ->get();
 

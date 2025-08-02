@@ -6,10 +6,18 @@
 
 @section('content')
 @if (session('store') == 'gagal')
-<x-alert type="danger">
-    <strong>Transaksi Gagal!</strong> Stok produk kurang.
-</x-alert>
+    <x-alert type="danger">
+        <strong>Transaksi Gagal!</strong> Stok produk kurang.
+        @if (session('produk_kurang'))
+            <ul class="mt-2 mb-0">
+                @foreach (session('produk_kurang') as $produk)
+                    <li>{{ $produk }}</li>
+                @endforeach
+            </ul>
+        @endif
+    </x-alert>
 @endif
+
     <div class="row">
         <div class="col-4">
             @include('transaksi.form-code')

@@ -109,13 +109,27 @@
     </div>
 </div>
 @endpush
-
 @push('scripts')
 <script>
     $(function() {
+        // Event untuk submit form saat konfirmasi
         $('#yesBatal').click(function() {
             $('#formBatal').submit();
         });
+
+        // Ambil waktu transaksi dari PHP ke JavaScript
+        const waktuTransaksi = new Date("{{ $penjualan->tanggal }}");
+        const waktuSekarang = new Date();
+
+        // Hitung waktu 3 jam setelah transaksi
+const batasPembatalan = new Date(waktuTransaksi.getTime() + 3 * 60 * 1000);
+ // 10 detik
+
+        // Jika waktu sekarang sudah lebih dari 3 jam dari waktu transaksi
+        if (waktuSekarang > batasPembatalan) {
+            // Disable tombol batal
+            $('[data-target="#modalBatal"]').prop('disabled', true).text('Batal (Expired)').addClass('disabled');
+        }
     });
 </script>
 @endpush

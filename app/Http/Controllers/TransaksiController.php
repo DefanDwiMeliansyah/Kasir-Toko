@@ -87,14 +87,19 @@ class TransaksiController extends Controller
             ]);
 
             $produk = Produk::find($item->id);
-            if ($produk) {
-                if ($produk->stok < $item->quantity) {
-                    return redirect()->route('transaksi.create')->with('store', 'gagal');
-                }
+if ($produk) {
+    if ($produk->stok < $item->quantity) {
+        // Kirim nama produk ke session
+        return redirect()
+            ->route('transaksi.create')
+            ->with('store', 'gagal')
+            ->with('produk_kurang', [$produk->nama]);
+    }
 
-                $produk->stok -= $item->quantity;
-                $produk->save();
-            }
+    $produk->stok -= $item->quantity;
+    $produk->save();
+}
+
         }
 
         $cart->destroy();
