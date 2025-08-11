@@ -27,38 +27,31 @@ class LaporanController extends Controller
         ]);
     }
 
-    public function bulanan(Request $request)
-    {
-        $penjualan = Penjualan::select(
-            DB::raw('COUNT(id) as jumlah_transaksi'),
-            DB::raw('SUM(total) as jumlah_total'),
-            DB::raw('DATE_FORMAT(tanggal, "%d/%m/%Y") tgl')
-        )
-            ->whereMonth('tanggal', $request->bulan)
-            ->whereYear('tanggal', $request->tahun)
-            ->groupBy('tgl')
-            ->get();
+public function bulanan(Request $request)
+{
+    $data = Penjualan::select(
+        DB::raw('DATE(tanggal) as tanggal'),
+        DB::raw('SUM(CASE WHEN status != "batal" THEN total ELSE 0 END) as jumlah_total'),
+        DB::raw('COUNT(CASE WHEN status != "batal" THEN 1 ELSE NULL END) as jumlah_selesai'),
+        DB::raw('COUNT(CASE WHEN status = "batal" THEN 1 ELSE NULL END) as jumlah_batal'),
+        DB::raw('COUNT(id) as jumlah_transaksi')
+    )
+        ->whereMonth('tanggal', $request->bulan)
+        ->whereYear('tanggal', $request->tahun)
+        ->groupBy(DB::raw('DATE(tanggal)'))
+        ->orderBy('tanggal')
+        ->get();
 
-        $nama_bulan = [
-            'Januari',
-            'Februari',
-            'Maret',
-            'April',
-            'Mei',
-            'Juni',
-            'Juli',
-            'Agustus',
-            'September',
-            'Oktober',
-            'November',
-            'Desember'
-        ];
+    $nama_bulan = [
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
 
-        $bulan = isset($nama_bulan[$request->bulan - 1]) ? $nama_bulan[$request->bulan - 1] : null;
+    $bulan = $nama_bulan[$request->bulan - 1] ?? 'Bulan Tidak Valid';
 
-        return view('laporan.bulanan', [
-            'penjualan' => $penjualan,
-            'bulan' => $bulan
-        ]);
-    }
+    return view('laporan.bulanan', [
+        'penjualan' => $data,
+        'bulan' => $bulan,
+    ]);
+}
 }

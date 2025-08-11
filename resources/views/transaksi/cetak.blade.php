@@ -54,6 +54,7 @@
         <p class="right">
             Sub Total : {{ number_format($penjualan->subtotal, 0, ',', '.') }} <br>
             Pajak PPN (10%) : {{ number_format($penjualan->pajak, 0, ',', '.') }} <br>
+            Diskon : -{{ number_format($penjualan->diskon_nominal, 0, ',', '.') }} <br>
             Total : {{ number_format($penjualan->total, 0, ',', '.') }} <br>
             Tunai : {{ number_format($penjualan->tunai, 0, ',', '.') }} <br>
             Kembalian : {{ number_format($penjualan->kembalian, 0, ',', '.') }} <br>

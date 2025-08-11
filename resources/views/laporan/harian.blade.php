@@ -36,7 +36,7 @@
                 Jumlah Total
             </th>
             <th>
-                {{ number_format( $penjualan->sum('total') , 0, ',', '.') }}
+                {{ number_format( $penjualan->filter(fn($row) => strtolower($row->status) !== 'batal')->sum('total') , 0, ',', '.') }}
             </th>
         </tr>
     </tfoot>

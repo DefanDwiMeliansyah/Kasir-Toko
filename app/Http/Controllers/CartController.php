@@ -26,7 +26,8 @@ class CartController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'kode_produk' => ['required', 'exists:produks,kode_produk']
+            'kode_produk' => ['required', 'exists:produks,kode_produk'],
+            'quantity' => ['sometimes', 'integer', 'min:1'] 
         ]);
 
         $produk = Produk::where('kode_produk', $request->kode_produk)->first();
@@ -36,11 +37,14 @@ class CartController extends Controller
         }
 
         $cart = (new Cart)->name($request->user()->id);
+        
+        // Gunakan quantity dari request, default 1 jika tidak ada
+        $quantity = $request->input('quantity', 1);
 
         $cart->addItem([
             'id' => $produk->id,
             'title' => $produk->nama_produk,
-            'quantity' => 1,
+            'quantity' => $quantity, // Gunakan quantity yang dikirim dari form
             'price' => $produk->harga
         ]);
 
@@ -134,7 +138,7 @@ class CartController extends Controller
             $items[] = [
                 'id' => $cartItem->id,
                 'quantity' => $cartItem->quantity,
-                'price' => $cartItem->price
+                'price' => $cartItem->price 
             ];
         }
 
@@ -143,7 +147,7 @@ class CartController extends Controller
         $nominalDiskon = $diskon->hitungDiskon($subtotal, $items);
 
         if ($nominalDiskon == 0) {
-            if ($subtotal < $diskon->minimal_belanja) {
+            if ($subtotal <= $diskon->minimal_belanja) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Minimal belanja untuk diskon ini adalah Rp ' . number_format($diskon->minimal_belanja, 0, ',', '.')

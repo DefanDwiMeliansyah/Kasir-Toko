@@ -93,6 +93,7 @@ class TransaksiController extends Controller
 
         $no = $lastPenjualan ? $lastPenjualan->id + 1 : 1;
         $no = sprintf("%04d", $no);
+        
 
         // Cek stok terlebih dahulu
         $allItems = $cartDetails->get('items');

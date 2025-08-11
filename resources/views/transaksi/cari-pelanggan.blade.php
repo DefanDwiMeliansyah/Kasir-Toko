@@ -48,7 +48,7 @@
         } = item
 
         const btn = `<button type="button" class="btn btn-xs btn-success" onclick="addPelanggan(${id})">
-            Pilih
+            Tambah
         </button>`;
 
         const row = `<tr>

@@ -46,7 +46,7 @@ class Diskon extends Model
     public function hitungDiskon($subtotal, $cartItems = [])
     {
         // Cek minimal belanja
-        if ($subtotal < $this->minimal_belanja) {
+        if ($subtotal <  $this->minimal_belanja) {
             return 0;
         }
 

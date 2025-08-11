@@ -4,24 +4,42 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class AuthController extends Controller
 {
     public function login(Request $request)
     {
-        $cred = $request->validate([
-            'username' => ['required', 'exists:users,username'],
+        // Validasi dasar tanpa rule 'exists'
+        $request->validate([
+            'username' => ['required'],
             'password' => ['required'],
         ]);
 
-        if (Auth::attempt($cred, $request->boolean('remember'))) {
-            $request->session()->regenerate(); // Untuk mencegah session fixation
-            return redirect()->intended('/');
+        // Ambil user berdasarkan username
+        $user = User::where('username', $request->username)->first();
+
+        if (!$user) {
+            // Username tidak ditemukan
+            return back()->withErrors([
+                'username' => 'Username tidak ditemukan.',
+            ])->onlyInput('username');
         }
 
-        return back()->withErrors([
-            'username' => 'Username atau Password yang diberikan salah.',
-        ])->onlyInput('username');
+        // Coba login
+        if (!Auth::attempt([
+            'username' => $request->username,
+            'password' => $request->password
+        ], $request->boolean('remember'))) {
+            // Password salah
+            return back()->withErrors([
+                'password' => 'Password yang Anda masukkan salah.',
+            ])->onlyInput('username');
+        }
+
+        // Sukses login
+        $request->session()->regenerate();
+        return redirect()->intended('/');
     }
 
     public function logout(Request $request)

@@ -1,33 +1,14 @@
 @extends('layouts.main', ['title' => 'Invoice'])
 @section('title-content')
-<i class="fas fa-file-invoice mr-2"></i>
-Invoice #{{ $penjualan->nomor_transaksi }}
+<i class="fas fa-file-invoice mr-2"></i> Invoice
 @endsection
 
 @section('content')
-<div class="card card-orange card-outline">
-    <div class="card-header">
-        <h3 class="card-title">
-            <i class="fas fa-file-invoice mr-2"></i> 
-            Invoice Transaksi
-        </h3>
-        <div class="card-tools">
-            <a href="{{ route('transaksi.cetak') }}?transaksi={{ $penjualan->id }}" 
-               class="btn btn-sm btn-primary" target="_blank">
-                <i class="fas fa-print mr-1"></i> Cetak
-            </a>
-            @if($penjualan->status !== 'batal')
-            <form action="{{ route('transaksi.destroy', $penjualan) }}" method="POST" class="d-inline ml-2"
-                  onsubmit="return confirm('Yakin ingin membatalkan transaksi ini?')">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="btn btn-sm btn-danger">
-                    <i class="fas fa-times mr-1"></i> Batalkan
-                </button>
-            </form>
-            @endif
-        </div>
-    </div>
+@if (session('destroy') == 'success')
+    <x-alert type="success">
+        <strong>Berhasil dibatalkan!</strong> Transaksi berhasil dibatalkan.
+    </x-alert>
+@endif
 
     <div class="card-body">
         <div class="row mb-4">
@@ -138,10 +119,64 @@ Invoice #{{ $penjualan->nomor_transaksi }}
         </div>
     </div>
 
-    <div class="card-footer">
-        <a href="{{ route('transaksi.index') }}" class="btn btn-secondary">
-            <i class="fas fa-arrow-left mr-2"></i> Kembali ke Transaksi
-        </a>
-    </div>
+
+<div class="card-footer form-inline">
+    <a href="{{ route('transaksi.index') }}" class="btn btn-secondary mr-2">Ke Transaksi</a>
+    @if ($penjualan->status == 'selesai')
+        <button type="button" class="btn btn-danger ml-auto mr-2" data-toggle="modal" data-target="#modalBatal">Dibatalkan</button>
+    @endif
+    <a target="_blank" href="{{ route('transaksi.cetak', ['transaksi' => $penjualan->id]) }}" class="btn btn-primary @if ($penjualan->status == 'batal') ml-auto @endif">
+        <i class="fas fa-print mr-2"></i> Cetak
+    </a>
 </div>
 @endsection
+
+@push('modals')
+<div class="modal fade" id="modalBatal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Dibatalkan</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Apakah yakin akan dibatalkan?</p>
+                <form action="{{ route('transaksi.destroy', ['transaksi' => $penjualan->id]) }}" method="post" style="display: none;" id="formBatal">
+                    @csrf
+                    @method('DELETE')
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" id="yesBatal">Ya, Batalkan!</button>
+            </div>
+        </div>
+    </div>
+</div>
+@endpush
+@push('scripts')
+<script>
+    $(function() {
+        // Event untuk submit form saat konfirmasi
+        $('#yesBatal').click(function() {
+            $('#formBatal').submit();
+        });
+
+        // Ambil waktu transaksi dari PHP ke JavaScript
+        const waktuTransaksi = new Date("{{ $penjualan->tanggal }}");
+        const waktuSekarang = new Date();
+
+        // Hitung waktu 3 jam setelah transaksi
+const batasPembatalan = new Date(waktuTransaksi.getTime() + 3 * 60 * 1000);
+ // 10 detik
+
+        // Jika waktu sekarang sudah lebih dari 3 jam dari waktu transaksi
+        if (waktuSekarang > batasPembatalan) {
+            // Disable tombol batal
+            $('[data-target="#modalBatal"]').prop('disabled', true).text('Batal (Expired)').addClass('disabled');
+        }
+    });
+</script>
+@endpush
