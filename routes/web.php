@@ -13,6 +13,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DiskonController;
+use App\Http\Controllers\ExpiredController;
 
 /*
 |--------------------------------------------------------------------------
@@ -88,4 +89,7 @@ Route::middleware('auth')->group(function () {
     // Diskon
     Route::resource('diskon', DiskonController::class);
     Route::patch('diskon/{diskon}/toggle', [DiskonController::class, 'toggle'])->name('diskon.toggle');
+
+    Route::resource('expired', \App\Http\Controllers\ExpiredController::class)->except(['edit', 'update', 'show']);
+    Route::get('expired/produk', [\App\Http\Controllers\ExpiredController::class, 'produk'])->name('expired.produk');
 });

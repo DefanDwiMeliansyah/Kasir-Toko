@@ -32,6 +32,9 @@
                 
                 <x-nav-item title="Stok" icon="fas fa-pallet"
                     :routes="['stok.index', 'stok.create']" />
+
+                 <x-nav-item title="Expired" icon="fas fa-exclamation-triangle"
+                    :routes="['expired.index']" />
                 
                 <x-nav-item title="Diskon" icon="fas fa-tags"
                     :routes="['diskon.index', 'diskon.create', 'diskon.edit']" />
