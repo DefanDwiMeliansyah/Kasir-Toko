@@ -61,10 +61,11 @@ class TransaksiController extends Controller
         $taxAmount = $cartDetails->get('tax_amount');
         $total = $cartDetails->get('total');
 
-        // Handle diskon
+        // Handle diskon dengan logik baru
         $diskonNominal = 0;
         $diskonId = null;
-        
+        $itemsDiskon = [];
+
         if ($request->diskon_id) {
             $diskon = Diskon::find($request->diskon_id);
             if ($diskon && $diskon->isValid()) {
@@ -75,12 +76,17 @@ class TransaksiController extends Controller
                     $item = $allItems->get($key);
                     $items[] = [
                         'id' => $item->id,
+                        'title' => $item->title,
                         'quantity' => $item->quantity,
-                        'price' => $item->price
+                        'price' => $item->price,
+                        'hash' => $key // Gunakan key sebagai hash
                     ];
                 }
-                
-                $diskonNominal = $diskon->hitungDiskon($subtotal, $items);
+
+                $hasilDiskon = $diskon->hitungDiskonBaru($items);
+                $diskonNominal = $hasilDiskon['total_diskon'];
+                $itemsDiskon = $hasilDiskon['items_diskon'];
+
                 if ($diskonNominal > 0) {
                     $diskonId = $diskon->id;
                 }
@@ -93,14 +99,14 @@ class TransaksiController extends Controller
 
         $no = $lastPenjualan ? $lastPenjualan->id + 1 : 1;
         $no = sprintf("%04d", $no);
-        
+
 
         // Cek stok terlebih dahulu
         $allItems = $cartDetails->get('items');
         foreach ($allItems as $key => $value) {
             $item = $allItems->get($key);
             $produk = Produk::find($item->id);
-            
+
             if ($produk && $produk->stok < $item->quantity) {
                 return redirect()
                     ->route('transaksi.create')
@@ -120,11 +126,19 @@ class TransaksiController extends Controller
             'pajak' => $taxAmount,
             'subtotal' => $subtotal,
             'diskon_id' => $diskonId,
-            'diskon_nominal' => $diskonNominal
+            'diskon_nominal' => $diskonNominal,
+            'diskon_detail' => !empty($itemsDiskon) ? json_encode($itemsDiskon) : null // Simpan detail diskon per item
         ]);
 
         foreach ($allItems as $key => $value) {
             $item = $allItems->get($key);
+
+            // Cari diskon untuk item ini
+            $diskonItemNominal = 0;
+            $hash = $key; // Gunakan key sebagai hash
+            if (isset($itemsDiskon[$hash])) {
+                $diskonItemNominal = $itemsDiskon[$hash]['diskon_nominal'];
+            }
 
             DetilPenjualan::create([
                 'penjualan_id' => $penjualan->id,
@@ -132,6 +146,8 @@ class TransaksiController extends Controller
                 'jumlah' => $item->quantity,
                 'harga_produk' => $item->price,
                 'subtotal' => $item->subtotal,
+                'diskon_nominal' => $diskonItemNominal, // Simpan diskon per item
+                'subtotal_setelah_diskon' => $item->subtotal - $diskonItemNominal
             ]);
 
             // Update stok

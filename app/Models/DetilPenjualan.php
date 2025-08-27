@@ -16,6 +16,8 @@ class DetilPenjualan extends Model
         'produk_id',
         'jumlah',
         'harga_produk',
-        'subtotal'
+        'subtotal',
+        'diskon_nominal',
+        'subtotal_setelah_diskon'
     ];
 }

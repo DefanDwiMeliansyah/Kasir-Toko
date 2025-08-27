@@ -23,7 +23,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div id="diskon-active" style="display: none;">
             <div class="alert alert-success mb-2">
                 <div class="d-flex justify-content-between align-items-center">
@@ -37,8 +37,14 @@
                 </div>
             </div>
             <div class="text-right">
-                <strong class="text-success">Hemat: Rp <span id="nominalDiskonActive">0</span></strong>
+                <strong class="text-success">Total Hemat: Rp <span id="nominalDiskonActive">0</span></strong>
             </div>
+        </div>
+
+        <!-- Alert untuk diskon yang otomatis dibatalkan -->
+        <div id="diskon-auto-removed-alert" class="alert alert-warning" style="display: none;">
+            <i class="fas fa-exclamation-triangle mr-2"></i>
+            Diskon otomatis dibatalkan karena produk yang mendapat diskon telah dihapus dari keranjang.
         </div>
     </div>
 </div>
@@ -132,8 +138,10 @@
     </div>
 </form>
 
-@push('scripts')
 <script>
+    // Variabel global untuk menyimpan data diskon per item
+    let activeDiscountItems = {};
+
     $(function() {
         fetchCart();
     });
@@ -151,32 +159,43 @@
                     extra_info
                 } = response;
 
+                // Reset discount items
+                activeDiscountItems = {};
+
                 $('#subtotal').html(rupiah(subtotal));
                 $('#taxAmount').html(rupiah(tax_amount));
 
-                // Handle diskon
-                let finalTotal = total;
-                if (extra_info && extra_info.diskon) {
-                    const diskon = extra_info.diskon;
-                    finalTotal = total - diskon.nominal;
-                    
-                    // Tampilkan info diskon
-                    $('#diskonRow, #diskonAmount').show();
-                    $('#diskonAmount').html('-' + rupiah(diskon.nominal));
-                    
-                    // Update form diskon
-                    $('#form-diskon').hide();
-                    $('#diskon-active').show();
-                    $('#kodeDiskonActive').text(diskon.kode);
-                    $('#namaDiskonActive').text(diskon.nama);
-                    $('#nominalDiskonActive').text(rupiah(diskon.nominal));
-                    $('#diskonId').val(diskon.id);
+                // PERBAIKAN: Handle diskon yang dihapus otomatis
+                if (extra_info && extra_info.diskon_auto_removed) {
+                    // Reset UI diskon
+                    resetDiscountUI();
+
+                    // Tampilkan alert
+                    $('#diskon-auto-removed-alert').show();
+                    setTimeout(() => {
+                        $('#diskon-auto-removed-alert').fadeOut();
+                    }, 5000);
                 } else {
-                    // Sembunyikan info diskon
-                    $('#diskonRow, #diskonAmount').hide();
-                    $('#form-diskon').show();
-                    $('#diskon-active').hide();
-                    $('#diskonId').val('');
+                    $('#diskon-auto-removed-alert').hide();
+                }
+
+                // Handle diskon
+                let finalTotal = total; // Backend sudah kirim total yang benar
+                if (extra_info && extra_info.diskon && !extra_info.diskon_auto_removed) {
+                    const diskon = extra_info.diskon;
+                    // PERBAIKAN: finalTotal sudah benar dari backend, tidak perlu dikurangi lagi
+                    finalTotal = total;
+
+                    // Simpan data diskon per item
+                    if (diskon.items_diskon) {
+                        activeDiscountItems = diskon.items_diskon;
+                    }
+
+                    // Tampilkan info diskon
+                    showDiscountUI(diskon);
+                } else {
+                    // Reset UI diskon jika tidak ada diskon atau diskon dihapus
+                    resetDiscountUI();
                 }
 
                 $('#total, #totalJumlah').html(rupiah(finalTotal));
@@ -202,6 +221,30 @@
         );
     }
 
+    // TAMBAHAN: Fungsi untuk reset UI diskon
+    function resetDiscountUI() {
+        $('#diskonRow, #diskonAmount').hide();
+        $('#form-diskon').show();
+        $('#diskon-active').hide();
+        $('#diskonId').val('');
+        $('#kodeDiskon').val(''); // Reset input kode diskon
+        activeDiscountItems = {};
+    }
+
+    // TAMBAHAN: Fungsi untuk tampilkan UI diskon
+    function showDiscountUI(diskon) {
+        $('#diskonRow, #diskonAmount').show();
+        $('#diskonAmount').html('-' + rupiah(diskon.nominal));
+
+        // Update form diskon
+        $('#form-diskon').hide();
+        $('#diskon-active').show();
+        $('#kodeDiskonActive').text(diskon.kode);
+        $('#namaDiskonActive').text(diskon.nama);
+        $('#nominalDiskonActive').text(rupiah(diskon.nominal));
+        $('#diskonId').val(diskon.id);
+    }
+
     function addRow(item) {
         const {
             hash,
@@ -223,11 +266,22 @@
                 <i class="fas fa-times"></i>
             </button>`;
 
+        // Cek apakah item ini mendapat diskon
+        let titleDisplay = title;
+        let subtotalDisplay = rupiah(total_price);
+
+        if (activeDiscountItems[hash]) {
+            const discountInfo = activeDiscountItems[hash];
+            titleDisplay += `<br><small class="text-success"><i class="fas fa-tag mr-1"></i>Diskon: -${rupiah(discountInfo.diskon_nominal)}</small>`;
+            subtotalDisplay = `<span style="text-decoration: line-through; color: #6c757d;">${rupiah(discountInfo.subtotal_asli)}</span><br>
+                              <strong class="text-success">${rupiah(discountInfo.subtotal_setelah_diskon)}</strong>`;
+        }
+
         const row = `<tr>
-                <td>${title}</td>
+                <td>${titleDisplay}</td>
                 <td>${quantity}</td>
                 <td>${rupiah(price)}</td>
-                <td>${rupiah(total_price)}</td>
+                <td>${subtotalDisplay}</td>
                 <td>${btn}</td>
             </tr>`;
 
@@ -265,7 +319,7 @@
 
     function applyDiscount() {
         const kodeDiskon = $('#kodeDiskon').val();
-        
+
         if (!kodeDiskon) {
             alert('Silakan masukkan kode diskon');
             return;
@@ -283,7 +337,7 @@
                 if (response.success) {
                     $('#kodeDiskon').val('');
                     fetchCart();
-                    
+
                     // Tampilkan notifikasi sukses
                     showAlert('success', response.message);
                 } else {
@@ -299,43 +353,108 @@
 
     function removeDiscount() {
         $.ajax({
-            type: "POST", 
+            type: "POST",
             url: "/cart/remove-discount",
             data: {
                 _token: $('meta[name="csrf-token"]').attr('content')
             },
             dataType: "json",
             success: function(response) {
-                fetchCart();
-                showAlert('info', response.message);
+                if (response.success) {
+                    // PERBAIKAN: Gunakan data cart yang dikembalikan dari response
+                    if (response.cart_data) {
+                        updateCartUI(response.cart_data);
+                    } else {
+                        // Fallback: refresh cart jika tidak ada data
+                        fetchCart();
+                    }
+                    showAlert('success', response.message);
+                } else {
+                    showAlert('danger', response.message);
+                }
+            },
+            error: function(xhr) {
+                const response = xhr.responseJSON;
+                showAlert('danger', response.message || 'Terjadi kesalahan');
             }
         });
     }
 
     function showAlert(type, message) {
-        const alertClass = type === 'success' ? 'alert-success' : 
-                          type === 'danger' ? 'alert-danger' : 'alert-info';
-        
-        const alert = `<div class="alert ${alertClass} alert-dismissible fade show" role="alert">
-                        ${message}
-                        <button type="button" class="close" data-dismiss="alert">
-                            <span>&times;</span>
-                        </button>
-                      </div>`;
-        
-        $('.card:first').before(alert);
-        
-        // Auto hide after 3 seconds
+        const alertHtml = `
+            <div class="alert alert-${type} alert-dismissible fade show mt-2" role="alert">
+                ${message}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>`;
+
+        // Masukkan ke dalam container alert jika ada
+        if ($('#alert-container').length) {
+            $('#alert-container').html(alertHtml);
+        } else {
+            // Jika tidak ada container khusus, tambahkan ke atas form diskon
+            $('#form-diskon').before(alertHtml);
+        }
+
+        // Auto close alert setelah 5 detik
         setTimeout(() => {
             $('.alert').alert('close');
-        }, 3000);
+        }, 5000);
     }
 
-    // Handle Enter key pada input kode diskon
-    $('#kodeDiskon').keypress(function(e) {
-        if (e.which == 13) {
-            applyDiscount();
+    function updateCartUI(cartData) {
+        $('#resultCart').empty();
+
+        const {
+            items,
+            subtotal,
+            tax_amount,
+            total,
+            extra_info
+        } = cartData;
+
+        // Reset discount items
+        activeDiscountItems = {};
+
+        $('#subtotal').html(rupiah(subtotal));
+        $('#taxAmount').html(rupiah(tax_amount));
+
+        // Handle diskon - seharusnya sudah tidak ada setelah dihapus
+        let finalTotal = total;
+        if (extra_info && extra_info.diskon) {
+            const diskon = extra_info.diskon;
+
+            if (diskon.items_diskon) {
+                activeDiscountItems = diskon.items_diskon;
+            }
+
+            showDiscountUI(diskon);
+        } else {
+            // Reset UI diskon karena diskon sudah dihapus
+            resetDiscountUI();
         }
-    });
+
+        $('#total, #totalJumlah').html(rupiah(finalTotal));
+        $('#totalBayar').val(finalTotal);
+
+        // Render items
+        for (const property in items) {
+            addRow(items[property]);
+        }
+
+        if (Array.isArray(items)) {
+            $('#resultCart').html('<tr><td colspan="5" class="text-center">Tidak ada data.</td></tr>');
+        }
+
+        // Handle pelanggan
+        if (!Array.isArray(extra_info) && extra_info && extra_info.pelanggan) {
+            const {
+                id,
+                nama
+            } = extra_info.pelanggan;
+            $('#namaPelanggan').val(nama);
+            $('#pelangganId').val(id);
+        }
+    }
 </script>
-@endpush

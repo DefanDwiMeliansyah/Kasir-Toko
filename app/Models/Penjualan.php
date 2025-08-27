@@ -23,7 +23,12 @@ class Penjualan extends Model
         'subtotal',
         'pajak',
         'diskon_id',
-        'diskon_nominal'
+        'diskon_nominal',
+        'diskon_detail' // Tambahan kolom untuk menyimpan detail diskon per item
+    ];
+
+    protected $casts = [
+        'diskon_detail' => 'array', // Cast sebagai array untuk mempermudah akses
     ];
 
     public function diskon()
@@ -44,5 +49,23 @@ class Penjualan extends Model
     public function detilPenjualan()
     {
         return $this->hasMany(DetilPenjualan::class);
+    }
+
+    /**
+     * Mendapatkan detail diskon per item
+     * @return array
+     */
+    public function getDiskonDetailAttribute($value)
+    {
+        return $value ? json_decode($value, true) : [];
+    }
+
+    /**
+     * Set detail diskon per item
+     * @param array $value
+     */
+    public function setDiskonDetailAttribute($value)
+    {
+        $this->attributes['diskon_detail'] = is_array($value) ? json_encode($value) : $value;
     }
 }

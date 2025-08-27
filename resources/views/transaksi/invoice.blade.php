@@ -69,10 +69,34 @@
                 @foreach($detilPenjualan as $key => $detail)
                 <tr>
                     <td>{{ $key + 1 }}</td>
-                    <td>{{ $detail->nama_produk }}</td>
+                    <td>
+                        {{ $detail->nama_produk }}
+                        @if($detail->diskon_nominal > 0)
+                            <br><small class="text-success">
+                                <i class="fas fa-tag mr-1"></i>
+                                @if($diskon)
+                                    Diskon {{ $diskon->kode_diskon }}:
+                                @else
+                                    Diskon:
+                                @endif
+                                -Rp {{ number_format($detail->diskon_nominal, 0, ',', '.') }}
+                            </small>
+                        @endif
+                    </td>
                     <td>{{ $detail->jumlah }}</td>
                     <td>Rp {{ number_format($detail->harga_produk, 0, ',', '.') }}</td>
-                    <td>Rp {{ number_format($detail->subtotal, 0, ',', '.') }}</td>
+                    <td>
+                        @if($detail->diskon_nominal > 0)
+                            <span style="text-decoration: line-through; color: #6c757d;">
+                                Rp {{ number_format($detail->subtotal, 0, ',', '.') }}
+                            </span><br>
+                            <strong class="text-success">
+                                Rp {{ number_format($detail->subtotal_setelah_diskon ?? ($detail->subtotal - $detail->diskon_nominal), 0, ',', '.') }}
+                            </strong>
+                        @else
+                            Rp {{ number_format($detail->subtotal, 0, ',', '.') }}
+                        @endif
+                    </td>
                 </tr>
                 @endforeach
             </tbody>
@@ -92,7 +116,7 @@
                     @if($penjualan->diskon_nominal > 0)
                     <tr>
                         <td>
-                            Diskon
+                            Total Diskon
                             @if($diskon)
                                 <br><small class="text-muted">({{ $diskon->kode_diskon }} - {{ $diskon->nama_diskon }})</small>
                             @endif
@@ -117,6 +141,30 @@
                 </table>
             </div>
         </div>
+
+        @if($penjualan->diskon_nominal > 0 && $diskon)
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="alert alert-success">
+                    <h6><i class="fas fa-tags mr-2"></i>Informasi Diskon</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Kode:</strong> {{ $diskon->kode_diskon }}<br>
+                            <strong>Nama:</strong> {{ $diskon->nama_diskon }}<br>
+                            @if($diskon->deskripsi)
+                                <strong>Deskripsi:</strong> {{ $diskon->deskripsi }}
+                            @endif
+                        </div>
+                        <div class="col-md-6 text-right">
+                            <h5 class="text-success mb-0">
+                                Total Hemat: Rp {{ number_format($penjualan->diskon_nominal, 0, ',', '.') }}
+                            </h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
     </div>
 
 
@@ -169,8 +217,7 @@
         const waktuSekarang = new Date();
 
         // Hitung waktu 3 jam setelah transaksi
-const batasPembatalan = new Date(waktuTransaksi.getTime() + 3 * 60 * 1000);
- // 10 detik
+        const batasPembatalan = new Date(waktuTransaksi.getTime() + 3 * 60 * 1000); // 3 menit untuk testing
 
         // Jika waktu sekarang sudah lebih dari 3 jam dari waktu transaksi
         if (waktuSekarang > batasPembatalan) {
