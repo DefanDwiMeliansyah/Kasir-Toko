@@ -29,12 +29,19 @@ class PelangganController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama' => ['required', 'max:100'],
+            'nama' => ['nullable', 'max:100'], // Ubah dari required ke nullable
             'alamat' => ['nullable', 'max:500'],
             'nomor_tlp' => ['nullable', 'max:14'],
         ]);
 
-        Pelanggan::create($request->all());
+        $data = $request->all();
+        
+        // Jika nama kosong, generate nama default
+        if (empty($data['nama'])) {
+            $data['nama'] = Pelanggan::generateDefaultName();
+        }
+
+        Pelanggan::create($data);
 
         return redirect()->route('pelanggan.index')->with('store', 'success');
     }
@@ -52,12 +59,19 @@ class PelangganController extends Controller
     public function update(Request $request, Pelanggan $pelanggan)
     {
         $request->validate([
-            'nama' => ['required', 'max:100'],
+            'nama' => ['nullable', 'max:100'], // Ubah dari required ke nullable
             'alamat' => ['nullable', 'max:500'],
             'nomor_tlp' => ['nullable', 'max:14'],
         ]);
 
-        $pelanggan->update($request->all());
+        $data = $request->all();
+        
+        // Jika nama kosong, generate nama default
+        if (empty($data['nama'])) {
+            $data['nama'] = Pelanggan::generateDefaultName();
+        }
+
+        $pelanggan->update($data);
 
         return redirect()->route('pelanggan.index')->with('update', 'success');
     }

@@ -24,7 +24,8 @@ class Penjualan extends Model
         'pajak',
         'diskon_id',
         'diskon_nominal',
-        'diskon_detail' // Tambahan kolom untuk menyimpan detail diskon per item
+        'diskon_detail', // Tambahan kolom untuk menyimpan detail diskon per item
+        'diskon_pelanggan_nominal' // TAMBAHAN: Kolom untuk menyimpan diskon pelanggan
     ];
 
     protected $casts = [

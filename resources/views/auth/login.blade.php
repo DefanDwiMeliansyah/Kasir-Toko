@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,6 +10,7 @@
   <link rel="stylesheet" href="/adminlte/plugins/fontawesome-free/css/all.min.css">
   <link rel="stylesheet" href="/adminlte/dist/css/adminlte.min.css?v=3.2.0">
 </head>
+
 <body class="login-page">
   <div class="login-box">
     <div class="login-logo">
@@ -18,14 +20,13 @@
       <div class="card-body login-card-body">
         <p class="login-box-msg">Masuk untuk memulai sesi Anda</p>
 
-        <form action="/login" method="POST">
+        <form action="{{ route('login') }}" method="POST">
           @csrf
-
           <!-- Username -->
           <div class="input-group">
             <input type="text" name="username"
-                   class="form-control @error('username') is-invalid @enderror"
-                   placeholder="Username">
+              class="form-control @error('username') is-invalid @enderror"
+              placeholder="Username">
             <div class="input-group-append">
               <div class="input-group-text">
                 <span class="fas fa-user"></span>
@@ -33,14 +34,14 @@
             </div>
           </div>
           @error('username')
-            <div class="d-block invalid-feedback">{{ $message }}</div>
+          <div class="d-block invalid-feedback">{{ $message }}</div>
           @enderror
 
           <!-- Password -->
           <div class="input-group mt-3">
             <input type="password" name="password"
-                   class="form-control @error('password') is-invalid @enderror"
-                   placeholder="Password">
+              class="form-control @error('password') is-invalid @enderror"
+              placeholder="Password">
             <div class="input-group-append">
               <div class="input-group-text">
                 <span class="fas fa-lock"></span>
@@ -48,7 +49,7 @@
             </div>
           </div>
           @error('password')
-            <div class="d-block invalid-feedback">{{ $message }}</div>
+          <div class="d-block invalid-feedback">{{ $message }}</div>
           @enderror
 
           <!-- Remember me + Submit -->
@@ -73,4 +74,5 @@
   <script src="/adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
   <script src="/adminlte/dist/js/adminlte.min.js?v=3.2.0"></script>
 </body>
+
 </html>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,41 +13,51 @@
             margin: 0;
             padding: 10px;
         }
+
         .invoice {
             width: 70mm;
             margin: 0 auto;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
         }
+
         .center {
             text-align: center;
         }
+
         .right {
             text-align: right;
         }
+
         hr {
             border: none;
             border-top: 1px solid #8c8b8b;
             margin: 5px 0;
         }
+
         .item-row {
             padding: 2px 0;
         }
+
         .discount-info {
             font-size: 10px;
             color: #666;
             font-style: italic;
         }
+
         .total-section {
             margin-top: 10px;
         }
+
         .bold {
             font-weight: bold;
         }
     </style>
 </head>
+
 <body onload="javascript:window.print()">
     <div class="invoice">
         <h3 class="center">TOKO MADU JAYA</h3>
@@ -56,7 +67,7 @@
             Telp: 0812-3456-7890
         </p>
         <hr>
-        
+
         <table>
             <tr>
                 <td>No. Transaksi</td>
@@ -76,7 +87,7 @@
             </tr>
         </table>
         <hr>
-        
+
         <!-- Detail Items -->
         @foreach ($detilPenjualan as $item)
         <div class="item-row">
@@ -87,15 +98,15 @@
                 <tr>
                     <td>{{ $item->jumlah }} x {{ number_format($item->harga_produk, 0, ',', '.') }}</td>
                     <td class="right">
-                    @if($item->diskon_nominal > 0)
-                            <span style="text-decoration: line-through; color: #6c757d;">
-                                (Rp {{ number_format($item->subtotal, 0, ',', '.') }})
-                            </span>
-                            <strong>
-                                Rp {{ number_format($item->subtotal_setelah_diskon ?? ($detail->subtotal - $detail->diskon_nominal), 0, ',', '.') }}
-                            </strong>
+                        @if($item->diskon_nominal > 0)
+                        <span style="text-decoration: line-through; color: #6c757d;">
+                            (Rp {{ number_format($item->subtotal, 0, ',', '.') }})
+                        </span>
+                        <strong>
+                            Rp {{ number_format($item->subtotal_setelah_diskon ?? ($detail->subtotal - $detail->diskon_nominal), 0, ',', '.') }}
+                        </strong>
                         @else
-                            Rp {{ number_format($item->subtotal, 0, ',', '.') }}
+                        Rp {{ number_format($item->subtotal, 0, ',', '.') }}
                         @endif
                     </td>
                 </tr>
@@ -103,7 +114,7 @@
         </div>
         <hr style="border-style: dashed;">
         @endforeach
-        
+
         <!-- Total Section -->
         <div class="total-section">
             <table>
@@ -126,6 +137,12 @@
                     <td class="right">-{{ number_format($penjualan->diskon_nominal, 0, ',', '.') }}</td>
                 </tr>
                 @endif
+                @if($penjualan->diskon_pelanggan_nominal > 0)
+                <tr>
+                    <td>Diskon Pelanggan</td>
+                    <td class="right">-{{ number_format($penjualan->diskon_pelanggan_nominal, 0, ',', '.') }}</td>
+                </tr>
+                @endif
                 <tr>
                     <td class="bold">TOTAL</td>
                     <td class="right bold">{{ number_format($penjualan->total, 0, ',', '.') }}</td>
@@ -140,14 +157,15 @@
                 </tr>
             </table>
         </div>
-        
+
         <hr>
-        
+
         <div class="center">
             <p><strong>TERIMA KASIH</strong><br>
-            Barang yang sudah dibeli tidak dapat dikembalikan</p>
+                Barang yang sudah dibeli tidak dapat dikembalikan</p>
             <p>{{ date('d/m/Y H:i:s') }}</p>
         </div>
     </div>
 </body>
+
 </html>

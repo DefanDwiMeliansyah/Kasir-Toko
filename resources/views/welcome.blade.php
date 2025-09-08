@@ -8,14 +8,14 @@
     @can('admin')
         <x-box title="User" icon="fas fa-user-tie" background="bg-danger"
             :route="route('user.index')" :jumlah="$user->jumlah" />
-        <x-box title="Kategori" icon="fas fa-list" background="bg-warning"
+        <x-box title="Kategori" icon="fas fa-list" background="bg-info"
             :route="route('kategori.index')" :jumlah="$kategori->jumlah" />
     @endcan
     <x-box title="Pelanggan" icon="fas fa-users" background="bg-primary"
         :route="route('pelanggan.index')" :jumlah="$pelanggan->jumlah" />
     <x-box title="Produk" icon="fas fa-box-open" background="bg-success"
         :route="route('produk.index')" :jumlah="$produk->jumlah" />
-    <x-box title="Expired" icon="fas fa-ban" background="bg-danger"
+    <x-box title="Expired" icon="fas fa-ban" background="bg-warning"
     :route="route('expired.index')" :jumlah="\App\Models\Expired::count()" />
 </div>
 <div class="card">

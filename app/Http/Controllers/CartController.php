@@ -23,8 +23,21 @@ class CartController extends Controller
         $cartDetails = $cart->getDetails();
         $response = $cartDetails->toArray();
 
-        // Jika ada diskon, hitung ulang dengan logika baru
+        // TAMBAHAN: Handle diskon pelanggan 10%
         $extraInfo = $cartDetails->get('extra_info');
+        $diskonPelanggan = 0;
+        if ($extraInfo && isset($extraInfo['pelanggan'])) {
+            $pelanggan = Pelanggan::find($extraInfo['pelanggan']['id']);
+            if ($pelanggan) {
+                $diskonPelanggan = $cartDetails->get('total') * 0.10; // 10% diskon
+                $response['extra_info']['diskon_pelanggan'] = [
+                    'nominal' => $diskonPelanggan,
+                    'nama' => 'Diskon Pelanggan'
+                ];
+            }
+        }
+
+        // Jika ada diskon, hitung ulang dengan logika baru
         if ($extraInfo && isset($extraInfo['diskon'])) {
             $diskon = Diskon::find($extraInfo['diskon']['id']);
             if ($diskon) {
@@ -61,8 +74,13 @@ class CartController extends Controller
                     ];
 
                     // Update total dengan diskon
-                    $response['total'] = $cartDetails->get('total') - $hasilDiskon['total_diskon'];
+                    $response['total'] = $cartDetails->get('total') - $hasilDiskon['total_diskon'] - $diskonPelanggan;
                 }
+            }
+        } else {
+            // TAMBAHAN: Update total dengan diskon pelanggan saja (jika ada)
+            if ($diskonPelanggan > 0) {
+                $response['total'] = $cartDetails->get('total') - $diskonPelanggan;
             }
         }
 

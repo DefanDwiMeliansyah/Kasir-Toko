@@ -13,6 +13,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // =======================
+        // USERS
+        // =======================
         \App\Models\User::create([
             'nama'     => 'Administrator',
             'username' => 'admin',
@@ -27,6 +30,30 @@ class DatabaseSeeder extends Seeder
             'role'     => 'petugas',
         ]);
 
+        \App\Models\User::create([
+            'nama'     => 'Aldhi Ekanda',
+            'username' => 'aldhi',
+            'password' => bcrypt('password'),
+            'role'     => 'admin',
+        ]);
+
+        \App\Models\User::create([
+            'nama'     => 'Patah Yasin',
+            'username' => 'patah',
+            'password' => bcrypt('password'),
+            'role'     => 'petugas',
+        ]);
+
+        \App\Models\User::create([
+            'nama'     => 'Rizky Ramadhan',
+            'username' => 'rizky',
+            'password' => bcrypt('password'),
+            'role'     => 'petugas',
+        ]);
+
+        // =======================
+        // PELANGGAN
+        // =======================
         \App\Models\Pelanggan::create([
             'nama' => 'Dodo Sidodo',
             'alamat' => 'Padaherang',
@@ -39,28 +66,82 @@ class DatabaseSeeder extends Seeder
             'nomor_tlp' => '082288866677'
         ]);
 
-        \App\Models\Kategori::create([
-            'nama_kategori' => 'Makanan',
+        \App\Models\Pelanggan::create([
+            'nama' => 'Sinta Lestari',
+            'alamat' => 'Ciamis',
+            'nomor_tlp' => '082299911122'
         ]);
 
-        \App\Models\Kategori::create([
-            'nama_kategori' => 'Minuman',
+        \App\Models\Pelanggan::create([
+            'nama' => 'Bagus Firmansyah',
+            'alamat' => 'Banjar',
+            'nomor_tlp' => '082233344455'
         ]);
 
-        \App\Models\Produk::create([
-            'kategori_id' => 1,
-            'kode_produk' => '1001',
-            'nama_produk' => 'Chiki Taro',
-            'harga' => 5000
+        \App\Models\Pelanggan::create([
+            'nama' => 'Melati Ayu',
+            'alamat' => 'Pangandaran',
+            'nomor_tlp' => '082277766655'
         ]);
 
-        \App\Models\Produk::create([
-            'kategori_id' => 2,
-            'kode_produk' => '1002',
-            'nama_produk' => 'Le Mineral',
-            'harga' => 3500
-        ]);
+        // =======================
+        // KATEGORI
+        // =======================
+        \App\Models\Kategori::create(['nama_kategori' => 'Makanan']);
+        \App\Models\Kategori::create(['nama_kategori' => 'Minuman']);
+        \App\Models\Kategori::create(['nama_kategori' => 'Kecantikan']);
+        \App\Models\Kategori::create(['nama_kategori' => 'Kesehatan']);
+        \App\Models\Kategori::create(['nama_kategori' => 'Elektronik']);
 
+        // =======================
+        // PRODUK MAKANAN
+        // =======================
+        \App\Models\Produk::create(['kategori_id' => 1, 'kode_produk' => '1001', 'nama_produk' => 'Chiki Taro', 'harga' => 5000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 1, 'kode_produk' => '1002', 'nama_produk' => 'Indomie Goreng', 'harga' => 3500, 'stok' => 200]);
+        \App\Models\Produk::create(['kategori_id' => 1, 'kode_produk' => '1003', 'nama_produk' => 'Silverqueen Coklat', 'harga' => 12000, 'stok' => 150]);
+        \App\Models\Produk::create(['kategori_id' => 1, 'kode_produk' => '1004', 'nama_produk' => 'Roma Malkist', 'harga' => 8000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 1, 'kode_produk' => '1005', 'nama_produk' => 'Kacang Garuda', 'harga' => 10000, 'stok' => 100]);
+
+        // =======================
+        // PRODUK MINUMAN
+        // =======================
+        \App\Models\Produk::create(['kategori_id' => 2, 'kode_produk' => '2001', 'nama_produk' => 'Lee Mineral', 'harga' => 3500, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 2, 'kode_produk' => '2002', 'nama_produk' => 'Teh Botol Sosro', 'harga' => 6000, 'stok' => 120]);
+        \App\Models\Produk::create(['kategori_id' => 2, 'kode_produk' => '2003', 'nama_produk' => 'Coca Cola', 'harga' => 7000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 2, 'kode_produk' => '2004', 'nama_produk' => 'Fruit Tea', 'harga' => 6500, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 2, 'kode_produk' => '2005', 'nama_produk' => 'Good Day Cappuccino', 'harga' => 5000, 'stok' => 150]);
+
+
+        // =======================
+        // PRODUK KECANTIKAN
+        // =======================
+        \App\Models\Produk::create(['kategori_id' => 3, 'kode_produk' => '3001', 'nama_produk' => 'Lipstik Wardah', 'harga' => 45000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 3, 'kode_produk' => '3002', 'nama_produk' => 'Bedak Marcks', 'harga' => 25000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 3, 'kode_produk' => '3003', 'nama_produk' => 'Serum Scarlett', 'harga' => 75000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 3, 'kode_produk' => '3004', 'nama_produk' => 'Masker Naturgo', 'harga' => 15000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 3, 'kode_produk' => '3005', 'nama_produk' => 'Shampoo Sunsilk', 'harga' => 30000, 'stok' => 100]);
+
+        // =======================
+        // PRODUK KESEHATAN
+        // =======================
+        \App\Models\Produk::create(['kategori_id' => 4, 'kode_produk' => '4001', 'nama_produk' => 'Paracetamol', 'harga' => 10000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 4, 'kode_produk' => '4002', 'nama_produk' => 'Vitamin C 1000mg', 'harga' => 20000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 4, 'kode_produk' => '4003', 'nama_produk' => 'Antangin JRG', 'harga' => 12000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 4, 'kode_produk' => '4004', 'nama_produk' => 'Minyak Kayu Putih', 'harga' => 15000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 4, 'kode_produk' => '4005', 'nama_produk' => 'Hansaplast', 'harga' => 8000, 'stok' => 100]);
+
+        // =======================
+        // PRODUK ELEKTRONIK
+        // =======================
+        \App\Models\Produk::create(['kategori_id' => 5, 'kode_produk' => '5001', 'nama_produk' => 'Kipas Angin Miyako', 'harga' => 150000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 5, 'kode_produk' => '5002', 'nama_produk' => 'Lampu Philips 12 Watt', 'harga' => 40000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 5, 'kode_produk' => '5003', 'nama_produk' => 'Setrika Maspion', 'harga' => 175000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 5, 'kode_produk' => '5004', 'nama_produk' => 'Magic Com Cosmos', 'harga' => 300000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 5, 'kode_produk' => '5005', 'nama_produk' => 'Speaker Bluetooth JBL', 'harga' => 500000, 'stok' => 100]);
+
+        // =======================
+        // STOK AWAL (Produk Lama)
+        // =======================
         \App\Models\Stok::create([
             'produk_id' => 1,
             'nama_suplier' => 'Toko Haji Usman',
@@ -75,36 +156,34 @@ class DatabaseSeeder extends Seeder
             'tanggal' => date('Y-m-d', strtotime('-1 week'))
         ]);
 
-        \App\Models\Produk::where('id', 1)->update([
-            'stok' => 250,
-        ]);
+        \App\Models\Produk::where('id', 1)->update(['stok' => 250]);
+        \App\Models\Produk::where('id', 2)->update(['stok' => 100]);
 
-        \App\Models\Produk::where('id', 2)->update([
-            'stok' => 100,
-        ]);
-
+        // =======================
+        // PENJUALAN (Data Lama)
+        // =======================
         \App\Models\Penjualan::create([
             'user_id' => 1,
             'pelanggan_id' => 1,
             'nomor_transaksi' => date('Ymd') . '0001',
-            'tanggal' => date('Y-m-d H:i:s'),
-            'subtotal' => 8500,
-            'pajak' => 850,
-            'total' => 9350,
-            'tunai' => 10000,
-            'kembalian' => 650
+            'tanggal' => date('Y-m-d H:i:s', strtotime('-1 day')),
+            'subtotal' => 85000,
+            'pajak' => 8500,
+            'total' => 93500,
+            'tunai' => 100000,
+            'kembalian' => 6500
         ]);
 
         \App\Models\Penjualan::create([
             'user_id' => 2,
             'pelanggan_id' => 2,
             'nomor_transaksi' => date('Ymd') . '0002',
-            'tanggal' => date('Y-m-d H:i:s'),
-            'subtotal' => 13500,
-            'pajak' => 1350,
-            'total' => 14850,
-            'tunai' => 20000,
-            'kembalian' => 5150
+            'tanggal' => date('Y-m-d H:i:s', strtotime('-1 day')),
+            'subtotal' => 135000,
+            'pajak' => 13500,
+            'total' => 148500,
+            'tunai' => 200000,
+            'kembalian' => 51500
         ]);
 
         \App\Models\DetilPenjualan::create([
@@ -139,6 +218,9 @@ class DatabaseSeeder extends Seeder
             'subtotal' => 3500,
         ]);
 
+        // =======================
+        // DISKON (Data Lama)
+        // =======================
         $now = Carbon::now();
 
         \App\Models\Diskon::create([
@@ -167,7 +249,7 @@ class DatabaseSeeder extends Seeder
             'maksimal_diskon' => 15000,
             'minimal_belanja' => 30000,
             'jenis_kondisi' => 'kategori',
-            'kondisi_ids' => [1], // ID kategori makanan
+            'kondisi_ids' => [1],
             'kuota' => 50,
             'terpakai' => 0,
             'tanggal_mulai' => $now,
@@ -176,7 +258,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         \App\Models\Diskon::create([
-            'kode_diskon' => 'HEMAT5000', 
+            'kode_diskon' => 'HEMAT5000',
             'nama_diskon' => 'Hemat Rp 5.000',
             'deskripsi' => 'Potongan langsung Rp 5.000 untuk pembelian minimal Rp 25.000',
             'jenis_diskon' => 'nominal',
@@ -185,7 +267,7 @@ class DatabaseSeeder extends Seeder
             'minimal_belanja' => 25000,
             'jenis_kondisi' => 'semua',
             'kondisi_ids' => null,
-            'kuota' => null, // unlimited
+            'kuota' => null,
             'terpakai' => 0,
             'tanggal_mulai' => $now,
             'tanggal_berakhir' => $now->copy()->addDays(7),
@@ -194,14 +276,14 @@ class DatabaseSeeder extends Seeder
 
         \App\Models\Diskon::create([
             'kode_diskon' => 'CHIKI20',
-            'nama_diskon' => 'Diskon 20% Chiki Taro', 
+            'nama_diskon' => 'Diskon 20% Chiki Taro',
             'deskripsi' => 'Diskon khusus untuk produk Chiki Taro',
             'jenis_diskon' => 'persen',
             'nilai_diskon' => 20,
             'maksimal_diskon' => 10000,
             'minimal_belanja' => 0,
             'jenis_kondisi' => 'produk',
-            'kondisi_ids' => [1], // ID produk Chiki Taro
+            'kondisi_ids' => [1],
             'kuota' => 25,
             'terpakai' => 0,
             'tanggal_mulai' => $now,

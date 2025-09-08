@@ -99,12 +99,16 @@
                 <p>Total</p>
                 <p>Pajak 10 %</p>
                 <p id="diskonRow" style="display: none;">Diskon</p>
+                <!-- TAMBAHAN: Row untuk diskon pelanggan -->
+                <p id="diskonPelangganRow" style="display: none;">Diskon Pelanggan</p>
                 <p>Total Bayar</p>
             </div>
             <div class="col-4 text-right">
                 <p id="subtotal">0</p>
                 <p id="taxAmount">0</p>
                 <p id="diskonAmount" class="text-success" style="display: none;">-0</p>
+                <!-- TAMBAHAN: Amount untuk diskon pelanggan -->
+                <p id="diskonPelangganAmount" class="text-success" style="display: none;">-0</p>
                 <p id="total">0</p>
             </div>
         </div>
@@ -177,6 +181,16 @@
                     }, 5000);
                 } else {
                     $('#diskon-auto-removed-alert').hide();
+                }
+
+                // TAMBAHAN: Handle diskon pelanggan
+                let diskonPelangganNominal = 0;
+                if (extra_info && extra_info.diskon_pelanggan) {
+                    diskonPelangganNominal = extra_info.diskon_pelanggan.nominal;
+                    $('#diskonPelangganRow, #diskonPelangganAmount').show();
+                    $('#diskonPelangganAmount').html('-' + rupiah(diskonPelangganNominal));
+                } else {
+                    $('#diskonPelangganRow, #diskonPelangganAmount').hide();
                 }
 
                 // Handle diskon
@@ -419,6 +433,16 @@
 
         $('#subtotal').html(rupiah(subtotal));
         $('#taxAmount').html(rupiah(tax_amount));
+
+        // TAMBAHAN: Handle diskon pelanggan
+        let diskonPelangganNominal = 0;
+        if (extra_info && extra_info.diskon_pelanggan) {
+            diskonPelangganNominal = extra_info.diskon_pelanggan.nominal;
+            $('#diskonPelangganRow, #diskonPelangganAmount').show();
+            $('#diskonPelangganAmount').html('-' + rupiah(diskonPelangganNominal));
+        } else {
+            $('#diskonPelangganRow, #diskonPelangganAmount').hide();
+        }
 
         // Handle diskon - seharusnya sudah tidak ada setelah dihapus
         let finalTotal = total;

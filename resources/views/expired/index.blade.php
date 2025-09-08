@@ -7,18 +7,23 @@
 
 @section('content')
 <div class="card card-danger card-outline">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h3 class="card-title">Daftar Barang Expired</h3>
-        <a href="{{ route('expired.create') }}" class="btn btn-danger btn-sm">
-            <i class="fas fa-plus"></i> Tambah
-        </a>
-    </div>
+        <div class="card-header form-inline">
+            <a href="{{ route('expired.create') }}" class="btn btn-danger">
+                <i class="fas fa-plus mr-2"></i> Tambah
+            </a>
+            <form action="" method="get" class="ml-auto">
+                <div class="input-group">
+                    <input type="date" class="form-control" name="search" value="{{ request()->search }}"
+                        placeholder="Tanggal">
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
     <div class="card-body table-responsive">
-        <form method="get" class="form-inline mb-3">
-            <input type="date" name="search" class="form-control mr-2" value="{{ request('search') }}">
-            <button class="btn btn-primary btn-sm">Cari</button>
-        </form>
-
         <table class="table table-sm table-bordered table-striped">
             <thead>
                 <tr>

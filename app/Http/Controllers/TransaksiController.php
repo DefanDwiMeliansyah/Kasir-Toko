@@ -44,12 +44,17 @@ class TransaksiController extends Controller
     public function store(Request $request, Cart $cart)
     {
         $request->validate([
-            'pelanggan_id' => ['required', 'exists:pelanggans,id'],
+            'pelanggan_id' => ['nullable', 'exists:pelanggans,id'],
             'cash' => ['required', 'numeric', 'gte:total_bayar'],
             'diskon_id' => ['nullable', 'exists:diskons,id']
         ], [], [
             'pelanggan_id' => 'pelanggan'
         ]);
+
+        if (!$request->pelanggan_id) {
+            $pelanggan = Pelanggan::create(['nama' => Pelanggan::generateDefaultName()]);
+            $request->merge(['pelanggan_id' => $pelanggan->id]);
+        }
 
         $user = $request->user();
         $lastPenjualan = Penjualan::orderBy('id', 'desc')->first();
@@ -60,6 +65,16 @@ class TransaksiController extends Controller
         $subtotal = $cartDetails->get('subtotal');
         $taxAmount = $cartDetails->get('tax_amount');
         $total = $cartDetails->get('total');
+
+        // TAMBAHAN: Handle diskon pelanggan 10%
+        $diskonPelangganNominal = 0;
+        $extraInfo = $cartDetails->get('extra_info');
+        if ($extraInfo && isset($extraInfo['pelanggan'])) {
+            $pelanggan = Pelanggan::find($extraInfo['pelanggan']['id']);
+            if ($pelanggan) {
+                $diskonPelangganNominal = $total * 0.10; // 10% diskon
+            }
+        }
 
         // Handle diskon dengan logik baru
         $diskonNominal = 0;
@@ -94,7 +109,7 @@ class TransaksiController extends Controller
         }
 
         // Hitung ulang total setelah diskon
-        $finalTotal = $total - $diskonNominal;
+        $finalTotal = $total - $diskonNominal - $diskonPelangganNominal;
         $kembalian = $request->cash - $finalTotal;
 
         $no = $lastPenjualan ? $lastPenjualan->id + 1 : 1;
@@ -117,7 +132,7 @@ class TransaksiController extends Controller
 
         $penjualan = Penjualan::create([
             'user_id' => $user->id,
-            'pelanggan_id' => $cart->getExtraInfo('pelanggan.id'),
+            'pelanggan_id' => $cart->getExtraInfo('pelanggan.id') ?: Pelanggan::create(['nama' => Pelanggan::generateDefaultName()])->id,
             'nomor_transaksi' => date('Ymd') . $no,
             'tanggal' => date('Y-m-d H:i:s'),
             'total' => $finalTotal,
@@ -127,7 +142,8 @@ class TransaksiController extends Controller
             'subtotal' => $subtotal,
             'diskon_id' => $diskonId,
             'diskon_nominal' => $diskonNominal,
-            'diskon_detail' => !empty($itemsDiskon) ? json_encode($itemsDiskon) : null // Simpan detail diskon per item
+            'diskon_detail' => !empty($itemsDiskon) ? json_encode($itemsDiskon) : null, // Simpan detail diskon per item
+            'diskon_pelanggan_nominal' => $diskonPelangganNominal // TAMBAHAN: Simpan diskon pelanggan
         ]);
 
         foreach ($allItems as $key => $value) {
