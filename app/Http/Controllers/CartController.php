@@ -23,13 +23,13 @@ class CartController extends Controller
         $cartDetails = $cart->getDetails();
         $response = $cartDetails->toArray();
 
-        // TAMBAHAN: Handle diskon pelanggan 10%
+        // Handle diskon pelanggan 10%
         $extraInfo = $cartDetails->get('extra_info');
         $diskonPelanggan = 0;
         if ($extraInfo && isset($extraInfo['pelanggan'])) {
             $pelanggan = Pelanggan::find($extraInfo['pelanggan']['id']);
             if ($pelanggan) {
-                $diskonPelanggan = $cartDetails->get('total') * 0.10; // 10% diskon
+                $diskonPelanggan = $cartDetails->get('total') * 0.10;
                 $response['extra_info']['diskon_pelanggan'] = [
                     'nominal' => $diskonPelanggan,
                     'nama' => 'Diskon Pelanggan'
@@ -78,7 +78,7 @@ class CartController extends Controller
                 }
             }
         } else {
-            // TAMBAHAN: Update total dengan diskon pelanggan saja (jika ada)
+            // Update total dengan diskon pelanggan saja (jika ada)
             if ($diskonPelanggan > 0) {
                 $response['total'] = $cartDetails->get('total') - $diskonPelanggan;
             }
@@ -142,7 +142,7 @@ class CartController extends Controller
             ]);
         }
 
-        // TAMBAHAN: Revalidasi diskon setelah update
+        // Revalidasi diskon setelah update
         $this->revalidateDiscount($cart);
 
         return response()->json(['message' => 'Berhasil diupdate.']);
@@ -153,7 +153,7 @@ class CartController extends Controller
         $cart = (new Cart)->name($request->user()->id);
         $cart->removeItem($hash);
 
-        // TAMBAHAN: Revalidasi diskon setelah hapus item
+        // Revalidasi diskon setelah hapus item
         $this->revalidateDiscount($cart);
 
         return response()->json(['message' => 'Berhasil di hapus.']);
@@ -168,7 +168,7 @@ class CartController extends Controller
     }
 
     /**
-     * TAMBAHAN: Method untuk revalidasi diskon
+     * PERBAIKAN: Method untuk revalidasi diskon yang lebih lengkap
      */
     private function revalidateDiscount($cart)
     {
@@ -192,31 +192,103 @@ class CartController extends Controller
                     ];
                 }
 
-                // Jika cart kosong atau diskon tidak berlaku lagi, hapus diskon
-                if (empty($items) || !$diskon->isBerlakuUntukCart($items)) {
-                    $cart->setExtraInfo([
-                        'pelanggan' => $extraInfo['pelanggan'] ?? null
-                    ]);
+                $shouldRemoveDiscount = false;
+
+                // Cek apakah cart kosong
+                if (empty($items)) {
+                    $shouldRemoveDiscount = true;
+                }
+
+                // Cek validitas diskon (aktif, belum expired, dll)
+                if (!$shouldRemoveDiscount && !$diskon->isValid()) {
+                    $shouldRemoveDiscount = true;
+                }
+
+                // PERBAIKAN: Cek maksimal_jumlah_produk dengan lebih teliti
+                if (!$shouldRemoveDiscount && $diskon->maksimal_jumlah_produk) {
+                    $itemsYangBerlaku = [];
+                    
+                    foreach ($items as $item) {
+                        $berlaku = false;
+
+                        if ($diskon->jenis_kondisi === 'semua') {
+                            $berlaku = true;
+                        } elseif ($diskon->jenis_kondisi === 'produk') {
+                            $berlaku = in_array($item['id'], $diskon->kondisi_ids ?? []);
+                        } elseif ($diskon->jenis_kondisi === 'kategori') {
+                            $produk = \App\Models\Produk::find($item['id']);
+                            if ($produk && $produk->kategori_id) {
+                                $berlaku = in_array($produk->kategori_id, $diskon->kondisi_ids ?? []);
+                            }
+                        }
+
+                        if ($berlaku) {
+                            $itemsYangBerlaku[] = $item;
+                        }
+                    }
+
+                    $totalJumlahBerlaku = array_sum(array_column($itemsYangBerlaku, 'quantity'));
+                    
+                    // Debug: Uncomment untuk debugging
+                    // \Log::info("Total jumlah berlaku: {$totalJumlahBerlaku}, Maksimal: {$diskon->maksimal_jumlah_produk}");
+                    
+                    if ($totalJumlahBerlaku > $diskon->maksimal_jumlah_produk) {
+                        $shouldRemoveDiscount = true;
+                    }
+                }
+
+                // Cek minimal belanja
+                if (!$shouldRemoveDiscount) {
+                    $totalKeseluruhan = array_sum(array_map(function($item) {
+                        return $item['price'] * $item['quantity'];
+                    }, $items));
+                    
+                    if ($totalKeseluruhan < $diskon->minimal_belanja) {
+                        $shouldRemoveDiscount = true;
+                    }
+                }
+
+                // Cek apakah ada item yang berlaku untuk diskon
+                if (!$shouldRemoveDiscount && !$diskon->isBerlakuUntukCart($items)) {
+                    $shouldRemoveDiscount = true;
+                }
+
+                // HAPUS DISKON JIKA TIDAK MEMENUHI SYARAT
+                if ($shouldRemoveDiscount) {
+                    // Hapus diskon dari cart
+                    $newExtraInfo = [];
+                    if (isset($extraInfo['pelanggan'])) {
+                        $newExtraInfo['pelanggan'] = $extraInfo['pelanggan'];
+                    }
+                    $cart->setExtraInfo($newExtraInfo);
+                    
+                    // Debug: Uncomment untuk debugging
+                    // \Log::info("Diskon dihapus karena tidak memenuhi syarat");
                 } else {
                     // Update diskon dengan perhitungan baru
                     $hasilDiskon = $diskon->hitungDiskonBaru($items);
 
                     if ($hasilDiskon['total_diskon'] > 0) {
-                        $cart->setExtraInfo([
+                        $newExtraInfo = [
                             'diskon' => [
                                 'id' => $diskon->id,
                                 'kode' => $diskon->kode_diskon,
                                 'nama' => $diskon->nama_diskon,
                                 'nominal' => $hasilDiskon['total_diskon'],
                                 'items_diskon' => $hasilDiskon['items_diskon']
-                            ],
-                            'pelanggan' => $extraInfo['pelanggan'] ?? null
-                        ]);
+                            ]
+                        ];
+                        if (isset($extraInfo['pelanggan'])) {
+                            $newExtraInfo['pelanggan'] = $extraInfo['pelanggan'];
+                        }
+                        $cart->setExtraInfo($newExtraInfo);
                     } else {
                         // Jika diskon jadi 0, hapus diskon
-                        $cart->setExtraInfo([
-                            'pelanggan' => $extraInfo['pelanggan'] ?? null
-                        ]);
+                        $newExtraInfo = [];
+                        if (isset($extraInfo['pelanggan'])) {
+                            $newExtraInfo['pelanggan'] = $extraInfo['pelanggan'];
+                        }
+                        $cart->setExtraInfo($newExtraInfo);
                     }
                 }
             }
@@ -225,8 +297,12 @@ class CartController extends Controller
 
     public function applyDiscount(Request $request)
     {
+        // PERBAIKAN: Validasi input kosong dengan pesan yang lebih baik
         $request->validate([
-            'kode_diskon' => ['required', 'string']
+            'kode_diskon' => ['required', 'string', 'min:1']
+        ], [
+            'kode_diskon.required' => 'Kode diskon wajib diisi.',
+            'kode_diskon.min' => 'Kode diskon tidak boleh kosong.'
         ]);
 
         $cart = (new Cart)->name($request->user()->id);
@@ -241,7 +317,7 @@ class CartController extends Controller
         }
 
         // Cari diskon berdasarkan kode
-        $diskon = Diskon::where('kode_diskon', strtoupper($request->kode_diskon))->first();
+        $diskon = Diskon::where('kode_diskon', strtoupper(trim($request->kode_diskon)))->first();
 
         if (!$diskon) {
             return response()->json([
@@ -279,25 +355,57 @@ class CartController extends Controller
             ];
         }
 
-        // Hitung diskon dengan logika baru
+        // PERBAIKAN: Validasi maksimal_jumlah_produk SEBELUM hitung diskon
+        if ($diskon->maksimal_jumlah_produk) {
+            $itemsYangBerlaku = [];
+            foreach ($items as $item) {
+                $berlaku = false;
+
+                if ($diskon->jenis_kondisi === 'semua') {
+                    $berlaku = true;
+                } elseif ($diskon->jenis_kondisi === 'produk') {
+                    $berlaku = in_array($item['id'], $diskon->kondisi_ids ?? []);
+                } elseif ($diskon->jenis_kondisi === 'kategori') {
+                    $produk = \App\Models\Produk::find($item['id']);
+                    if ($produk && $produk->kategori_id) {
+                        $berlaku = in_array($produk->kategori_id, $diskon->kondisi_ids ?? []);
+                    }
+                }
+
+                if ($berlaku) {
+                    $itemsYangBerlaku[] = $item;
+                }
+            }
+
+            $totalJumlah = array_sum(array_column($itemsYangBerlaku, 'quantity'));
+            if ($totalJumlah > $diskon->maksimal_jumlah_produk) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Maksimal ' . $diskon->maksimal_jumlah_produk . ' item untuk diskon ini.'
+                ], 400);
+            }
+        }
+
+        // Validasi minimal_belanja
+        $totalKeseluruhan = array_sum(array_map(function ($item) {
+            return $item['price'] * $item['quantity'];
+        }, $items));
+
+        if ($totalKeseluruhan < $diskon->minimal_belanja) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Minimal belanja Rp ' . number_format($diskon->minimal_belanja, 0, ',', '.') . ' untuk diskon ini.'
+            ], 400);
+        }
+
+        // Hitung diskon dengan logika baru (setelah semua validasi berhasil)
         $hasilDiskon = $diskon->hitungDiskonBaru($items);
 
         if ($hasilDiskon['total_diskon'] == 0) {
-            $totalKeseluruhan = array_sum(array_map(function ($item) {
-                return $item['price'] * $item['quantity'];
-            }, $items));
-
-            if ($totalKeseluruhan < $diskon->minimal_belanja) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Minimal belanja untuk diskon ini adalah Rp ' . number_format($diskon->minimal_belanja, 0, ',', '.')
-                ], 400);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Diskon tidak dapat diterapkan pada produk di keranjang Anda.'
-                ], 400);
-            }
+            return response()->json([
+                'success' => false,
+                'message' => 'Diskon tidak dapat diterapkan pada produk di keranjang.'
+            ], 400);
         }
 
         // Terapkan diskon ke cart
@@ -335,7 +443,7 @@ class CartController extends Controller
             'pelanggan' => $cartDetails->get('extra_info')['pelanggan'] ?? null
         ]);
 
-        // PERBAIKAN: Apply tax ulang dan ambil data cart yang sudah diperbarui
+        // Apply tax ulang dan ambil data cart yang sudah diperbarui
         $cart->applyTax([
             'id' => 1,
             'rate' => 10,
@@ -349,7 +457,7 @@ class CartController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Diskon berhasil dihapus.',
-            'cart_data' => $response  // Kirim data cart yang sudah diperbarui
+            'cart_data' => $response
         ]);
     }
 }

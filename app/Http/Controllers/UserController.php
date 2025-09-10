@@ -14,7 +14,7 @@ class UserController extends Controller
         $users = User::orderBy('id')
             ->when($search, function ($q, $search) {
                 return $q->where('nama', 'like', "%{$search}%")
-                         ->orWhere('username', 'like', "%{$search}%");
+                    ->orWhere('username', 'like', "%{$search}%");
             })
             ->paginate();
 
@@ -85,7 +85,21 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
-        $user->delete();
-        return back()->with('destroy', 'success');
+        if (! $user->canBeDeletedByCurrentUser()) {
+            return redirect()->route('user.index')->with([
+                'destroy' => 'error',
+                'destroy_message' => 'User ini tidak dapat dihapus!'
+            ]);
+        }
+
+        try {
+            $user->delete();
+            return redirect()->route('user.index')->with('destroy', 'success');
+        } catch (\Exception $e) {
+            return redirect()->route('user.index')->with([
+                'destroy' => 'error',
+                'destroy_message' => 'Terjadi kesalahan saat menghapus user!'
+            ]);
+        }
     }
 }

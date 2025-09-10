@@ -36,7 +36,8 @@
                     <th>Kode</th>
                     <th>Nama Produk</th>
                     <th>Kategori</th>
-                    <th>Harga</th>
+                    <th>Harga Beli</th>
+                    <th>Harga Jual</th>
                     <th>Stok</th>
                     <th></th>
                 </tr>
@@ -48,7 +49,8 @@
                     <td>{{ $produk->kode_produk }}</td>
                     <td>{{ $produk->nama_produk }}</td>
                     <td>{{ $produk->nama_kategori }}</td>
-                    <td>{{ $produk->harga }}</td>
+                    <td>Rp {{ number_format($produk->harga_beli, 0, ',', '.') }}</td>
+                    <td>Rp {{ number_format($produk->harga, 0, ',', '.') }}</td>
                     <td>{{ $produk->stok }}</td>
                     <td class="text-right">
                         <a href="{{ route('produk.edit', ['produk' => $produk->id]) }}"

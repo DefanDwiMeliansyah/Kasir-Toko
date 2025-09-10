@@ -11,6 +11,7 @@ class PelangganController extends Controller
     {
         $search = $request->search;
         $pelanggans = Pelanggan::orderBy('id')
+            ->where('nama', 'not like', 'pembeli-%') // Filter out default customers based on naming pattern
             ->when($search, fn($q) => $q->where('nama', 'like', "%{$search}%"))
             ->paginate();
 
@@ -29,9 +30,13 @@ class PelangganController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama' => ['nullable', 'max:100'], // Ubah dari required ke nullable
-            'alamat' => ['nullable', 'max:500'],
-            'nomor_tlp' => ['nullable', 'max:14'],
+            'nama' => ['nullable', 'max:100', 'regex:/^[a-zA-Z\s]*$/'], // Hanya huruf dan spasi
+            'alamat' => ['nullable', 'max:500', 'regex:/^[a-zA-Z\s.,]*$/'], // Huruf, spasi, koma, titik
+            'nomor_tlp' => ['nullable', 'max:14', 'regex:/^[0-9+\-\s()]*$/'], // Hanya angka dan karakter telepon umum
+        ], [
+            'nama.regex' => 'Nama hanya boleh berisi huruf dan spasi.',
+            'alamat.regex' => 'Alamat hanya boleh berisi huruf, spasi, koma, dan titik.',
+            'nomor_tlp.regex' => 'Nomor telepon hanya boleh berisi angka, +, -, spasi, dan tanda kurung.',
         ]);
 
         $data = $request->all();
@@ -59,9 +64,13 @@ class PelangganController extends Controller
     public function update(Request $request, Pelanggan $pelanggan)
     {
         $request->validate([
-            'nama' => ['nullable', 'max:100'], // Ubah dari required ke nullable
-            'alamat' => ['nullable', 'max:500'],
-            'nomor_tlp' => ['nullable', 'max:14'],
+            'nama' => ['nullable', 'max:100', 'regex:/^[a-zA-Z\s]*$/'], // Hanya huruf dan spasi
+            'alamat' => ['nullable', 'max:500', 'regex:/^[a-zA-Z\s.,]*$/'], // Huruf, spasi, koma, titik
+            'nomor_tlp' => ['nullable', 'max:14', 'regex:/^[0-9+\-\s()]*$/'], // Hanya angka dan karakter telepon umum
+        ], [
+            'nama.regex' => 'Nama hanya boleh berisi huruf dan spasi.',
+            'alamat.regex' => 'Alamat hanya boleh berisi huruf, spasi, koma, dan titik.',
+            'nomor_tlp.regex' => 'Nomor telepon hanya boleh berisi angka, +, -, spasi, dan tanda kurung.',
         ]);
 
         $data = $request->all();

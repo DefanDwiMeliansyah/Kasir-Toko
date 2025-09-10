@@ -90,7 +90,7 @@ Tambah Diskon
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="minimal_belanja">Minimal Belanja <span class="text-danger">*</span></label>
                                 <input type="number" name="minimal_belanja" id="minimal_belanja" step="0.01" min="0"
@@ -101,7 +101,19 @@ Tambah Diskon
                                 @enderror
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="maksimal_jumlah_produk">Maksimal Jumlah Produk</label>
+                                <input type="number" name="maksimal_jumlah_produk" id="maksimal_jumlah_produk" min="1"
+                                    class="form-control @error('maksimal_jumlah_produk') is-invalid @enderror"
+                                    value="{{ old('maksimal_jumlah_produk') }}" placeholder="Kosongkan jika tidak ada batas">
+                                <small class="text-muted">Kosongkan jika tidak ada batas maksimal</small>
+                                @error('maksimal_jumlah_produk')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="kuota">Kuota Penggunaan</label>
                                 <input type="number" name="kuota" id="kuota" min="1"

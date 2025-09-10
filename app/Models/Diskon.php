@@ -19,6 +19,7 @@ class Diskon extends Model
         'nilai_diskon',
         'maksimal_diskon',
         'minimal_belanja',
+        'maksimal_jumlah_produk',
         'jenis_kondisi',
         'kondisi_ids',
         'kuota',
@@ -65,6 +66,14 @@ class Diskon extends Model
         
         if (empty($itemsYangBerlaku)) {
             return $result;
+        }
+
+        // PERBAIKAN: Cek maksimal_jumlah_produk di sini juga
+        if ($this->maksimal_jumlah_produk) {
+            $totalJumlah = array_sum(array_column($itemsYangBerlaku, 'quantity'));
+            if ($totalJumlah > $this->maksimal_jumlah_produk) {
+                return $result; // Return 0 discount jika melebihi maksimal
+            }
         }
 
         // Hitung subtotal dari item yang berlaku
@@ -160,17 +169,41 @@ class Diskon extends Model
     }
 
     /**
-     * Cek apakah diskon masih berlaku untuk cart items saat ini
+     * PERBAIKAN: Cek apakah diskon masih berlaku untuk cart items saat ini
      * Digunakan untuk validasi realtime
      */
     public function isBerlakuUntukCart($cartItems)
     {
+        // Cek validitas dasar (aktif, tanggal, kuota)
         if (!$this->isValid()) {
             return false;
         }
 
+        // Cek apakah ada item yang berlaku
         $itemsBerlaku = $this->getItemsYangBerlaku($cartItems);
-        return !empty($itemsBerlaku);
+        
+        if (empty($itemsBerlaku)) {
+            return false;
+        }
+
+        // PERBAIKAN: Cek maksimal_jumlah_produk
+        if ($this->maksimal_jumlah_produk) {
+            $totalJumlah = array_sum(array_column($itemsBerlaku, 'quantity'));
+            if ($totalJumlah > $this->maksimal_jumlah_produk) {
+                return false;
+            }
+        }
+
+        // Cek minimal belanja berdasarkan total keseluruhan
+        $totalKeseluruhan = array_sum(array_map(function($item) {
+            return $item['price'] * $item['quantity'];
+        }, $cartItems));
+        
+        if ($totalKeseluruhan < $this->minimal_belanja) {
+            return false;
+        }
+
+        return true;
     }
 
     // Method lama untuk backward compatibility
@@ -178,12 +211,6 @@ class Diskon extends Model
     {
         $hasil = $this->hitungDiskonBaru($cartItems);
         return $hasil['total_diskon'];
-    }
-
-    private function validateKondisi($cartItems)
-    {
-        $itemsBerlaku = $this->getItemsYangBerlaku($cartItems);
-        return !empty($itemsBerlaku);
     }
 
     public function incrementTerpakai()

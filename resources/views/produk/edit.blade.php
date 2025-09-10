@@ -23,7 +23,11 @@
                     <x-input name="nama_produk" type="text" :value="$produk->nama_produk" />
                 </div>
                 <div class="form-group">
-                    <label>Harga Produk</label>
+                    <label>Harga Beli</label>
+                    <x-input name="harga_beli" type="text" :value="$produk->harga_beli" />
+                </div>
+                <div class="form-group">
+                    <label>Harga Jual</label>
                     <x-input name="harga" type="text" :value="$produk->harga" />
                 </div>
                 <div class="form-group">

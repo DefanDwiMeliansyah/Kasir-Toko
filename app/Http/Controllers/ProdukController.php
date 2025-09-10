@@ -45,6 +45,7 @@ class ProdukController extends Controller
             'kode_produk' => ['required', 'max:250', 'unique:produks'],
             'nama_produk' => ['required', 'max:150'],
             'harga' => ['required', 'numeric'],
+            'harga_beli' => ['required', 'numeric'],
             'kategori_id' => ['required', 'exists:kategoris,id'],
         ]);
 
@@ -52,6 +53,7 @@ class ProdukController extends Controller
         'kode_produk' => $request->kode_produk,
         'nama_produk' => $request->nama_produk,
         'harga' => $request->harga,
+        'harga_beli' => $request->harga_beli,
         'kategori_id' => $request->kategori_id,
         ]);
 
@@ -87,6 +89,7 @@ class ProdukController extends Controller
             'kode_produk' => ['required', 'max:250', 'unique:produks,kode_produk,' . $produk->id],
             'nama_produk' => ['required', 'max:150'],
             'harga' => ['required', 'numeric'],
+            'harga_beli' => ['required', 'numeric'],
             'kategori_id' => ['required', 'exists:kategoris,id'],
         ]);
 
@@ -94,6 +97,7 @@ class ProdukController extends Controller
         'kode_produk' => $request->kode_produk,
         'nama_produk' => $request->nama_produk,
         'harga' => $request->harga,
+        'harga_beli' => $request->harga_beli,
         'kategori_id' => $request->kategori_id,
         ]);
 

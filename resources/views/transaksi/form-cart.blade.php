@@ -44,7 +44,7 @@
         <!-- Alert untuk diskon yang otomatis dibatalkan -->
         <div id="diskon-auto-removed-alert" class="alert alert-warning" style="display: none;">
             <i class="fas fa-exclamation-triangle mr-2"></i>
-            Diskon otomatis dibatalkan karena produk yang mendapat diskon telah dihapus dari keranjang.
+            Diskon otomatis dibatalkan karena produk yang mendapat diskon telah Tidak memenuhi ketentuan.
         </div>
     </div>
 </div>

@@ -22,7 +22,11 @@
                     <x-input name="nama_produk" type="text" />
                 </div>
                 <div class="form-group">
-                    <label>Harga Produk</label>
+                    <label>Harga Beli</label>
+                    <x-input name="harga_beli" type="text" />
+                </div>
+                <div class="form-group">
+                    <label>Harga Jual</label>
                     <x-input name="harga" type="text" />
                 </div>
                 <div class="form-group">

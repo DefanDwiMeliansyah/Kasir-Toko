@@ -96,48 +96,48 @@ class DatabaseSeeder extends Seeder
         // =======================
         // PRODUK MAKANAN
         // =======================
-        \App\Models\Produk::create(['kategori_id' => 1, 'kode_produk' => '1001', 'nama_produk' => 'Chiki Taro', 'harga' => 5000, 'stok' => 100]);
-        \App\Models\Produk::create(['kategori_id' => 1, 'kode_produk' => '1002', 'nama_produk' => 'Indomie Goreng', 'harga' => 3500, 'stok' => 200]);
-        \App\Models\Produk::create(['kategori_id' => 1, 'kode_produk' => '1003', 'nama_produk' => 'Silverqueen Coklat', 'harga' => 12000, 'stok' => 150]);
-        \App\Models\Produk::create(['kategori_id' => 1, 'kode_produk' => '1004', 'nama_produk' => 'Roma Malkist', 'harga' => 8000, 'stok' => 100]);
-        \App\Models\Produk::create(['kategori_id' => 1, 'kode_produk' => '1005', 'nama_produk' => 'Kacang Garuda', 'harga' => 10000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 1, 'kode_produk' => '1001', 'nama_produk' => 'Chiki Taro', 'harga' => 5000, 'harga_beli' => 3500, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 1, 'kode_produk' => '1002', 'nama_produk' => 'Indomie Goreng', 'harga' => 3500, 'harga_beli' => 2500, 'stok' => 200]);
+        \App\Models\Produk::create(['kategori_id' => 1, 'kode_produk' => '1003', 'nama_produk' => 'Silverqueen Coklat', 'harga' => 12000, 'harga_beli' => 9000, 'stok' => 150]);
+        \App\Models\Produk::create(['kategori_id' => 1, 'kode_produk' => '1004', 'nama_produk' => 'Roma Malkist', 'harga' => 8000, 'harga_beli' => 6000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 1, 'kode_produk' => '1005', 'nama_produk' => 'Kacang Garuda', 'harga' => 10000, 'harga_beli' => 7500, 'stok' => 100]);
 
         // =======================
         // PRODUK MINUMAN
         // =======================
-        \App\Models\Produk::create(['kategori_id' => 2, 'kode_produk' => '2001', 'nama_produk' => 'Lee Mineral', 'harga' => 3500, 'stok' => 100]);
-        \App\Models\Produk::create(['kategori_id' => 2, 'kode_produk' => '2002', 'nama_produk' => 'Teh Botol Sosro', 'harga' => 6000, 'stok' => 120]);
-        \App\Models\Produk::create(['kategori_id' => 2, 'kode_produk' => '2003', 'nama_produk' => 'Coca Cola', 'harga' => 7000, 'stok' => 100]);
-        \App\Models\Produk::create(['kategori_id' => 2, 'kode_produk' => '2004', 'nama_produk' => 'Fruit Tea', 'harga' => 6500, 'stok' => 100]);
-        \App\Models\Produk::create(['kategori_id' => 2, 'kode_produk' => '2005', 'nama_produk' => 'Good Day Cappuccino', 'harga' => 5000, 'stok' => 150]);
-
+        \App\Models\Produk::create(['kategori_id' => 2, 'kode_produk' => '2001', 'nama_produk' => 'Lee Mineral', 'harga' => 3500, 'harga_beli' => 2500, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 2, 'kode_produk' => '2002', 'nama_produk' => 'Teh Botol Sosro', 'harga' => 6000, 'harga_beli' => 4500, 'stok' => 120]);
+        \App\Models\Produk::create(['kategori_id' => 2, 'kode_produk' => '2003', 'nama_produk' => 'Coca Cola', 'harga' => 7000, 'harga_beli' => 5000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 2, 'kode_produk' => '2004', 'nama_produk' => 'Fruit Tea', 'harga' => 6500, 'harga_beli' => 4800, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 2, 'kode_produk' => '2005', 'nama_produk' => 'Good Day Cappuccino', 'harga' => 5000, 'harga_beli' => 3500, 'stok' => 150]);
 
         // =======================
         // PRODUK KECANTIKAN
         // =======================
-        \App\Models\Produk::create(['kategori_id' => 3, 'kode_produk' => '3001', 'nama_produk' => 'Lipstik Wardah', 'harga' => 45000, 'stok' => 100]);
-        \App\Models\Produk::create(['kategori_id' => 3, 'kode_produk' => '3002', 'nama_produk' => 'Bedak Marcks', 'harga' => 25000, 'stok' => 100]);
-        \App\Models\Produk::create(['kategori_id' => 3, 'kode_produk' => '3003', 'nama_produk' => 'Serum Scarlett', 'harga' => 75000, 'stok' => 100]);
-        \App\Models\Produk::create(['kategori_id' => 3, 'kode_produk' => '3004', 'nama_produk' => 'Masker Naturgo', 'harga' => 15000, 'stok' => 100]);
-        \App\Models\Produk::create(['kategori_id' => 3, 'kode_produk' => '3005', 'nama_produk' => 'Shampoo Sunsilk', 'harga' => 30000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 3, 'kode_produk' => '3001', 'nama_produk' => 'Lipstik Wardah', 'harga' => 45000, 'harga_beli' => 33000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 3, 'kode_produk' => '3002', 'nama_produk' => 'Bedak Marcks', 'harga' => 25000, 'harga_beli' => 18000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 3, 'kode_produk' => '3003', 'nama_produk' => 'Serum Scarlett', 'harga' => 75000, 'harga_beli' => 55000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 3, 'kode_produk' => '3004', 'nama_produk' => 'Masker Naturgo', 'harga' => 15000, 'harga_beli' => 11000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 3, 'kode_produk' => '3005', 'nama_produk' => 'Shampoo Sunsilk', 'harga' => 30000, 'harga_beli' => 22000, 'stok' => 100]);
 
         // =======================
         // PRODUK KESEHATAN
         // =======================
-        \App\Models\Produk::create(['kategori_id' => 4, 'kode_produk' => '4001', 'nama_produk' => 'Paracetamol', 'harga' => 10000, 'stok' => 100]);
-        \App\Models\Produk::create(['kategori_id' => 4, 'kode_produk' => '4002', 'nama_produk' => 'Vitamin C 1000mg', 'harga' => 20000, 'stok' => 100]);
-        \App\Models\Produk::create(['kategori_id' => 4, 'kode_produk' => '4003', 'nama_produk' => 'Antangin JRG', 'harga' => 12000, 'stok' => 100]);
-        \App\Models\Produk::create(['kategori_id' => 4, 'kode_produk' => '4004', 'nama_produk' => 'Minyak Kayu Putih', 'harga' => 15000, 'stok' => 100]);
-        \App\Models\Produk::create(['kategori_id' => 4, 'kode_produk' => '4005', 'nama_produk' => 'Hansaplast', 'harga' => 8000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 4, 'kode_produk' => '4001', 'nama_produk' => 'Paracetamol', 'harga' => 10000, 'harga_beli' => 7500, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 4, 'kode_produk' => '4002', 'nama_produk' => 'Vitamin C 1000mg', 'harga' => 20000, 'harga_beli' => 15000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 4, 'kode_produk' => '4003', 'nama_produk' => 'Antangin JRG', 'harga' => 12000, 'harga_beli' => 9000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 4, 'kode_produk' => '4004', 'nama_produk' => 'Minyak Kayu Putih', 'harga' => 15000, 'harga_beli' => 11000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 4, 'kode_produk' => '4005', 'nama_produk' => 'Hansaplast', 'harga' => 8000, 'harga_beli' => 6000, 'stok' => 100]);
 
         // =======================
         // PRODUK ELEKTRONIK
         // =======================
-        \App\Models\Produk::create(['kategori_id' => 5, 'kode_produk' => '5001', 'nama_produk' => 'Kipas Angin Miyako', 'harga' => 150000, 'stok' => 100]);
-        \App\Models\Produk::create(['kategori_id' => 5, 'kode_produk' => '5002', 'nama_produk' => 'Lampu Philips 12 Watt', 'harga' => 40000, 'stok' => 100]);
-        \App\Models\Produk::create(['kategori_id' => 5, 'kode_produk' => '5003', 'nama_produk' => 'Setrika Maspion', 'harga' => 175000, 'stok' => 100]);
-        \App\Models\Produk::create(['kategori_id' => 5, 'kode_produk' => '5004', 'nama_produk' => 'Magic Com Cosmos', 'harga' => 300000, 'stok' => 100]);
-        \App\Models\Produk::create(['kategori_id' => 5, 'kode_produk' => '5005', 'nama_produk' => 'Speaker Bluetooth JBL', 'harga' => 500000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 5, 'kode_produk' => '5001', 'nama_produk' => 'Kipas Angin Miyako', 'harga' => 150000, 'harga_beli' => 110000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 5, 'kode_produk' => '5002', 'nama_produk' => 'Lampu Philips 12 Watt', 'harga' => 40000, 'harga_beli' => 30000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 5, 'kode_produk' => '5003', 'nama_produk' => 'Setrika Maspion', 'harga' => 175000, 'harga_beli' => 130000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 5, 'kode_produk' => '5004', 'nama_produk' => 'Magic Com Cosmos', 'harga' => 300000, 'harga_beli' => 225000, 'stok' => 100]);
+        \App\Models\Produk::create(['kategori_id' => 5, 'kode_produk' => '5005', 'nama_produk' => 'Speaker Bluetooth JBL', 'harga' => 500000, 'harga_beli' => 375000, 'stok' => 100]);
+
 
         // =======================
         // STOK AWAL (Produk Lama)

@@ -85,6 +85,10 @@ Route::middleware('auth')->group(function () {
     Route::get('laporan', [LaporanController::class, 'index'])->name('laporan.index');
     Route::get('laporan/harian', [LaporanController::class, 'harian'])->name('laporan.harian');
     Route::get('laporan/bulanan', [LaporanController::class, 'bulanan'])->name('laporan.bulanan');
+    Route::prefix('laporan')->name('laporan.')->group(function () {
+        Route::get('/laba-rugi-harian', [LaporanController::class, 'labaRugiHarian'])->name('laba-rugi-harian');
+        Route::get('/laba-rugi-bulanan', [LaporanController::class, 'labaRugiBulanan'])->name('laba-rugi-bulanan');
+    });
 
     // Diskon
     Route::resource('diskon', DiskonController::class);

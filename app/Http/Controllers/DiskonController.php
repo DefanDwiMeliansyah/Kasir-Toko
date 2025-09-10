@@ -14,9 +14,9 @@ class DiskonController extends Controller
         $search = $request->search;
 
         $diskons = Diskon::when($search, function ($q, $search) {
-                return $q->where('kode_diskon', 'like', "%{$search}%")
-                         ->orWhere('nama_diskon', 'like', "%{$search}%");
-            })
+            return $q->where('kode_diskon', 'like', "%{$search}%")
+                ->orWhere('nama_diskon', 'like', "%{$search}%");
+        })
             ->orderBy('id', 'desc')
             ->paginate();
 
@@ -48,6 +48,7 @@ class DiskonController extends Controller
             'nilai_diskon' => ['required', 'numeric', 'min:0'],
             'maksimal_diskon' => ['nullable', 'numeric', 'min:0'],
             'minimal_belanja' => ['required', 'numeric', 'min:0'],
+            'maksimal_jumlah_produk' => ['nullable', 'integer', 'min:1'], // TAMBAHAN: Validasi maksimal jumlah produk
             'jenis_kondisi' => ['required', 'in:semua,kategori,produk'],
             'kondisi_ids' => ['nullable', 'array'],
             'kuota' => ['nullable', 'integer', 'min:1'],
@@ -61,6 +62,7 @@ class DiskonController extends Controller
             'nilai_diskon' => 'Nilai Diskon',
             'maksimal_diskon' => 'Maksimal Diskon',
             'minimal_belanja' => 'Minimal Belanja',
+            'maksimal_jumlah_produk' => 'Maksimal Jumlah Produk', // TAMBAHAN: Custom message
             'jenis_kondisi' => 'Jenis Kondisi',
             'kondisi_ids' => 'Kondisi',
             'tanggal_mulai' => 'Tanggal Mulai',
@@ -80,6 +82,7 @@ class DiskonController extends Controller
             'nilai_diskon' => $request->nilai_diskon,
             'maksimal_diskon' => $request->maksimal_diskon,
             'minimal_belanja' => $request->minimal_belanja ?? 0,
+            'maksimal_jumlah_produk' => $request->maksimal_jumlah_produk, // TAMBAHAN: Simpan maksimal jumlah produk
             'jenis_kondisi' => $request->jenis_kondisi,
             'kondisi_ids' => $request->jenis_kondisi === 'semua' ? null : $request->kondisi_ids,
             'kuota' => $request->kuota,
@@ -118,6 +121,7 @@ class DiskonController extends Controller
             'nilai_diskon' => ['required', 'numeric', 'min:0'],
             'maksimal_diskon' => ['nullable', 'numeric', 'min:0'],
             'minimal_belanja' => ['required', 'numeric', 'min:0'],
+            'maksimal_jumlah_produk' => ['nullable', 'integer', 'min:1'], // TAMBAHAN: Validasi maksimal jumlah produk
             'jenis_kondisi' => ['required', 'in:semua,kategori,produk'],
             'kondisi_ids' => ['nullable', 'array'],
             'kuota' => ['nullable', 'integer', 'min:1'],
@@ -131,6 +135,7 @@ class DiskonController extends Controller
             'nilai_diskon' => 'Nilai Diskon',
             'maksimal_diskon' => 'Maksimal Diskon',
             'minimal_belanja' => 'Minimal Belanja',
+            'maksimal_jumlah_produk' => 'Maksimal Jumlah Produk', // TAMBAHAN: Custom message
             'jenis_kondisi' => 'Jenis Kondisi',
             'kondisi_ids' => 'Kondisi',
             'tanggal_mulai' => 'Tanggal Mulai',
@@ -150,6 +155,7 @@ class DiskonController extends Controller
             'nilai_diskon' => $request->nilai_diskon,
             'maksimal_diskon' => $request->maksimal_diskon,
             'minimal_belanja' => $request->minimal_belanja ?? 0,
+            'maksimal_jumlah_produk' => $request->maksimal_jumlah_produk, // TAMBAHAN: Update maksimal jumlah produk
             'jenis_kondisi' => $request->jenis_kondisi,
             'kondisi_ids' => $request->jenis_kondisi === 'semua' ? null : $request->kondisi_ids,
             'kuota' => $request->kuota,

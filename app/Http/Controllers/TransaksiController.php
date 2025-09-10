@@ -247,9 +247,13 @@ class TransaksiController extends Controller
     public function produk(Request $request)
     {
         $search = $request->search;
-        $produks = Produk::select('id', 'kode_produk', 'nama_produk')
+        $produks = Produk::with('kategori')  // tambahkan ini
+            ->select('id', 'kode_produk', 'nama_produk')
             ->when($search, function ($q, $search) {
-                return $q->where('nama_produk', 'like', "%{$search}%");
+                return $q->where('nama_produk', 'like', "%{$search}%")
+                    ->orWhereHas('kategori', function ($subQ) use ($search) {  // tambahkan ini
+                        $subQ->where('nama_kategori', 'like', "%{$search}%");
+                    });
             })
             ->orderBy('nama_produk')
             ->take(15)
@@ -262,6 +266,7 @@ class TransaksiController extends Controller
     {
         $search = $request->search;
         $pelanggans = Pelanggan::select('id', 'nama')
+            ->where('nama', 'not like', 'pembeli-%') // Only show non-default customers
             ->when($search, function ($q, $search) {
                 return $q->where('nama', 'like', "%{$search}%");
             })

@@ -20,13 +20,14 @@
       <div class="card-body login-card-body">
         <p class="login-box-msg">Masuk untuk memulai sesi Anda</p>
 
-        <form action="{{ route('login') }}" method="POST">
+        <form action="{{ route('login') }}" method="POST" autocomplete="off">
           @csrf
           <!-- Username -->
           <div class="input-group">
             <input type="text" name="username"
               class="form-control @error('username') is-invalid @enderror"
-              placeholder="Username">
+              placeholder="Username"
+              autocomplete="off">
             <div class="input-group-append">
               <div class="input-group-text">
                 <span class="fas fa-user"></span>
@@ -41,7 +42,8 @@
           <div class="input-group mt-3">
             <input type="password" name="password"
               class="form-control @error('password') is-invalid @enderror"
-              placeholder="Password">
+              placeholder="Password"
+              autocomplete="new-password">
             <div class="input-group-append">
               <div class="input-group-text">
                 <span class="fas fa-lock"></span>
