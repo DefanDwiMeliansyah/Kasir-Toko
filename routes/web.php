@@ -27,10 +27,6 @@ use App\Http\Controllers\ExpiredController;
 // ======================
 // ROUTE UMUM
 // ======================
-Route::get('/', function () {
-    return view('welcome');
-})->name('home')->middleware('auth');
-
 Route::view('login', 'auth.login')->name('login')->middleware('guest');
 
 // ======================
@@ -44,7 +40,7 @@ Route::post('logout', [AuthController::class, 'logout'])->name('logout')->middle
 // ======================
 Route::middleware('auth')->group(function () {
 
-    // Dashboard
+    // Dashboard - ROUTE UTAMA UNTUK HOME
     Route::get('/', [DashboardController::class, 'index'])->name('home');
 
     // Profile
@@ -82,13 +78,21 @@ Route::middleware('auth')->group(function () {
         ->parameters(['cart' => 'hash']);
 
     // Laporan
-    Route::get('laporan', [LaporanController::class, 'index'])->name('laporan.index');
-    Route::get('laporan/harian', [LaporanController::class, 'harian'])->name('laporan.harian');
-    Route::get('laporan/bulanan', [LaporanController::class, 'bulanan'])->name('laporan.bulanan');
-    Route::prefix('laporan')->name('laporan.')->group(function () {
-        Route::get('/laba-rugi-harian', [LaporanController::class, 'labaRugiHarian'])->name('laba-rugi-harian');
-        Route::get('/laba-rugi-bulanan', [LaporanController::class, 'labaRugiBulanan'])->name('laba-rugi-bulanan');
-    });
+        // Routes laporan yang sudah ada
+    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+    Route::post('/laporan/harian', [LaporanController::class, 'harian'])->name('laporan.harian');
+    Route::post('/laporan/bulanan', [LaporanController::class, 'bulanan'])->name('laporan.bulanan');
+    
+    // Routes laporan laba rugi detail baru
+    Route::post('/laporan/laba-rugi-harian', [LaporanController::class, 'labaRugiHarian'])->name('laporan.laba-rugi-harian');
+    Route::post('/laporan/laba-rugi-bulanan', [LaporanController::class, 'labaRugiBulanan'])->name('laporan.laba-rugi-bulanan');
+    
+    // Route untuk chart data (jika diperlukan untuk dashboard)
+    Route::get('/laporan/chart-data', [LaporanController::class, 'getLabaRugiChartData'])->name('laporan.chart-data');
+    
+    // FITUR BARU: Routes laporan produk terlaris
+    Route::post('/laporan/produk-terlaris', [LaporanController::class, 'produkTerlaris'])->name('laporan.produk-terlaris');
+    Route::get('/laporan/produk-terlaris-chart', [LaporanController::class, 'getProdukTerlarisChartData'])->name('laporan.produk-terlaris-chart');
 
     // Diskon
     Route::resource('diskon', DiskonController::class);

@@ -62,7 +62,7 @@
         $('#formCariProduk').submit(function (e) {
             e.preventDefault();
             const search = $('#searchProduk').val().trim();
-            if (search.length >= 3) {
+            if (search.length >= 1) {
                 fetchCariProduk(search);
             } else {
                 $('#resultProduk').html('<tr><td class="text-center text-muted">Ketik minimal 3 karakter untuk mencari</td></tr>');
@@ -72,7 +72,7 @@
         // Real-time search
         $('#searchProduk').on('input', function() {
             const search = $(this).val().trim();
-            if (search.length >= 3) {
+            if (search.length >= 1) {
                 fetchCariProduk(search);
             } else if (search.length === 0) {
                 $('#resultProduk').html('<tr><td class="text-center text-muted">Ketik minimal 3 karakter untuk mencari</td></tr>');

@@ -26,6 +26,14 @@
         <a href="{{ route('produk.create') }}" class="btn btn-primary">
             <i class="fas fa-plus mr-2"></i> Tambah
         </a>
+        <form action="?" method="get" class="ml-auto">
+            <div class="input-group">
+                <input type="text" class="form-control" name="search" value="<?= request()->search ?>" placeholder="Nama Produk" />
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+        </form>
     </div>
 
     <div class="card-body p-0">
